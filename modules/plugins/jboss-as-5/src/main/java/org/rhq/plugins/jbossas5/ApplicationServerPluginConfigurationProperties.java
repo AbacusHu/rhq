@@ -43,6 +43,8 @@ public class ApplicationServerPluginConfigurationProperties {
     public static final String SHUTDOWN_SCRIPT_CONFIG_PROP = "shutdownScript";
     public static final String SHUTDOWN_MBEAN_CONFIG_PROP = "shutdownMBeanName";
     public static final String SHUTDOWN_MBEAN_OPERATION_CONFIG_PROP = "shutdownMBeanOperation";
+    public static final String RUNGC_MBEAN_CONFIG_PROP = "runGcMBeanName";
+    public static final String RUNGC_MBEAN_OPERATION_CONFIG_PROP = "runGcMBeanOperation";
     public static final String SHUTDOWN_METHOD_CONFIG_PROP = "shutdownMethod";
     public static final String SCRIPT_PREFIX_CONFIG_PROP = "scriptPrefix";
     public static final String AVAIL_CHECK_PERIOD_CONFIG_PROP = "availabilityCheckPeriod";

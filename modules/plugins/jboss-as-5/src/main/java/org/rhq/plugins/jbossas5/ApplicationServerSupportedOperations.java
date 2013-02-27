@@ -40,5 +40,15 @@ public enum ApplicationServerSupportedOperations {
 	/**
 	 * Starts an AS instance by calling a configurable start script.
 	 */
-	START
+	START,
+	
+	/**
+	 * Run garbage collector
+	 */
+	RUNGC,
+	
+	/**
+	 * Generate Snapshot
+	 */
+	GENSNAPSHOT
 }

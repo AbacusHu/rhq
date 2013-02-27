@@ -23,15 +23,25 @@
 package org.rhq.plugins.jbossas5;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hyperic.sigar.SigarException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mc4j.ems.connection.EmsConnection;
 import org.mc4j.ems.connection.bean.EmsBean;
+import org.mc4j.ems.connection.bean.attribute.EmsAttribute;
 import org.mc4j.ems.connection.bean.operation.EmsOperation;
 import org.mc4j.ems.connection.bean.parameter.EmsParameter;
 
@@ -44,7 +54,9 @@ import org.rhq.core.pluginapi.util.ProcessExecutionUtility;
 import org.rhq.core.pluginapi.util.StartScriptConfiguration;
 import org.rhq.core.system.ProcessExecution;
 import org.rhq.core.system.ProcessExecutionResults;
+import org.rhq.core.system.ProcessInfo;
 import org.rhq.core.system.SystemInfo;
+import org.rhq.plugins.jbossas5.util.IOUtil;
 
 /**
  * Handles performing operations (Start, Shut Down, and Restart) on a JBoss AS 5.x instance.
@@ -54,7 +66,7 @@ import org.rhq.core.system.SystemInfo;
  * @author Jay Shaughnessy
  */
 public class ApplicationServerOperationsDelegate {
-    
+
     private static class ExecutionFailedException extends Exception {
 
         private static final long serialVersionUID = 1L;
@@ -74,9 +86,9 @@ public class ApplicationServerOperationsDelegate {
         @SuppressWarnings("unused")
         public ExecutionFailedException(Throwable cause) {
             super(cause);
-        }       
+        }
     }
-    
+
     /**
      * max amount of time to wait for server to show as unavailable after
      * executing stop - in milliseconds
@@ -98,6 +110,8 @@ public class ApplicationServerOperationsDelegate {
     /** max amount of time to wait for start to complete - in milliseconds */
     private static long START_WAIT_MAX = 1000L * 300; // 5 minutes
 
+    private static long THREE_DAYS = 86400L * 1000L * 3;
+
     /**
      * amount of time to wait between availability checks when performing a
      * start - in milliseconds
@@ -108,10 +122,14 @@ public class ApplicationServerOperationsDelegate {
 
     private static final String SEPARATOR = "\n-----------------------\n";
 
-    static final String DEFAULT_START_SCRIPT = "bin" + File.separator + "run."
-        + ((File.separatorChar == '/') ? "sh" : "bat");
+    static final String DEFAULT_START_SCRIPT = "bin" + File.separator + "run." + ((notWindows()) ? "sh" : "bat");
+
     static final String DEFAULT_SHUTDOWN_SCRIPT = "bin" + File.separator + "shutdown."
-        + ((File.separatorChar == '/') ? "sh" : "bat");
+        + ((notWindows()) ? "sh" : "bat");
+
+    private static boolean notWindows() {
+        return File.separatorChar == '/';
+    }
 
     /**
      * Server component against which the operations are being performed.
@@ -160,6 +178,14 @@ public class ApplicationServerOperationsDelegate {
             result = restart();
             break;
         }
+        case RUNGC: {
+            result = runGC();
+            break;
+        }
+        case GENSNAPSHOT: {
+            result = generateSnapshot();
+            break;
+        }
         }
 
         return result;
@@ -180,9 +206,7 @@ public class ApplicationServerOperationsDelegate {
     private OperationResult start() throws InterruptedException {
         AvailabilityType avail = this.serverComponent.getAvailability();
         if (avail == AvailabilityType.UP) {
-            OperationResult result = new OperationResult();
-            result.setErrorMessage("The server is already started.");
-            return result;
+            return alreadyUpErrorMessage();
         }
         Configuration pluginConfig = serverComponent.getResourceContext().getPluginConfiguration();
         StartScriptConfiguration startScriptConfig = new StartScriptConfiguration(pluginConfig);
@@ -190,8 +214,8 @@ public class ApplicationServerOperationsDelegate {
         validateScriptFile(startScriptFile, ApplicationServerPluginConfigurationProperties.START_SCRIPT_CONFIG_PROP);
 
         // The optional command prefix (e.g. sudo or nohup).
-        String prefix = pluginConfig
-            .getSimpleValue(ApplicationServerPluginConfigurationProperties.SCRIPT_PREFIX_CONFIG_PROP, null);
+        String prefix = pluginConfig.getSimpleValue(
+            ApplicationServerPluginConfigurationProperties.SCRIPT_PREFIX_CONFIG_PROP, null);
         if ((prefix != null) && prefix.replaceAll("\\s", "").equals("")) {
             // all whitespace - normalize to null
             prefix = null;
@@ -311,7 +335,8 @@ public class ApplicationServerOperationsDelegate {
     private void setJavaHomeEnvironmentVariable(ProcessExecution processExecution) {
         File javaHomeDir = getJavaHomePath();
         if (javaHomeDir == null) {
-            throw new RuntimeException("JAVA_HOME environment variable must be specified via the 'javaHome' connection "
+            throw new RuntimeException(
+                "JAVA_HOME environment variable must be specified via the 'javaHome' connection "
                     + "property in order to shut down the application server via script.");
         }
 
@@ -338,7 +363,7 @@ public class ApplicationServerOperationsDelegate {
         } catch (ExecutionFailedException e) {
             errorMessage = e.getMessage();
         }
-        
+
         AvailabilityType avail = waitForServerToShutdown();
         OperationResult result;
         if (avail == AvailabilityType.UP) {
@@ -349,8 +374,370 @@ public class ApplicationServerOperationsDelegate {
             result.setSimpleResult(resultMessage);
             result.setErrorMessage(errorMessage);
         }
-        
+
         return result;
+    }
+
+    /**
+     * request the server to run garbage collection via JMX. 
+     * @return The result of the run garbage collection - is successful
+     */
+    private OperationResult runGC() {
+        OperationResult result = checkServerAvailablity(AvailabilityType.DOWN);
+        if (result == null) {
+            invokeMBean(ApplicationServerPluginConfigurationProperties.RUNGC_MBEAN_CONFIG_PROP,
+                ApplicationServerPluginConfigurationProperties.RUNGC_MBEAN_OPERATION_CONFIG_PROP);
+            result = new OperationResult("The server runs garbage collector successfully");
+        }
+        return result;
+
+    }
+
+    /**
+     * request the server to list thread dump via JMX.
+     * @return the thread dump information when the list thread dump is successful
+     */
+    private OperationResult generateSnapshot() {
+        AvailabilityType avail = this.serverComponent.getAvailability();
+        boolean available = !(AvailabilityType.DOWN.equals(avail));
+        if (available) {
+            generateDumpFile();
+        }
+        File serverInfoFile = generateServerInfoFile(available);
+
+        File serverLog = getServerLogFile();
+        File javacoreFile = getJavaCoreFile();
+        File heapdumpFile = getHeapDumpFile(THREE_DAYS);
+        List<File> list = new ArrayList<File>(4);
+        addFile(serverInfoFile, list);
+        addFile(serverLog, list);
+        addFile(javacoreFile, list);
+        addFile(heapdumpFile, list);
+
+        String snapshotPath = generateSnapshot(list);
+
+        deleteFiles(list);
+
+        OperationResult result = new OperationResult(snapshotPath);
+        return result;
+    }
+
+    /**
+     * Delete temp files which are used to generate snapshot. 
+     */
+    private void deleteFiles(List<File> list) {
+        for (File file : list) {
+            file.delete();
+        }
+    }
+
+    /**
+     * @param list
+     * @return the absolute file path of snapshot file.
+     */
+    private String generateSnapshot(List<File> list) {
+        File[] files = list.toArray(new File[list.size()]);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String date = format.format(new Date());
+        File systemTempDir = getSystemTempDir();
+        File snapshot = new File(systemTempDir, "snapshot." + date + ".zip");
+        try {
+            IOUtil.zip(files, snapshot);
+        } catch (IOException e) {
+            log.error("IOException in generating snapshot file", e);
+        }
+
+        String user = System.getProperty("user.name", "root");
+        String hostAddress;
+        try {
+            hostAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error("Cannot get host address", e);
+            hostAddress = "localhost";
+        }
+        return user + "@" + hostAddress + ":" + snapshot;
+    }
+
+    private void addFile(File file, List<File> list) {
+        if (file != null) {
+            list.add(file);
+        }
+    }
+
+    private File generateServerInfoFile(boolean serverAvailable) {
+        File tmpDir = getSystemTempDir();
+        File file = new File(tmpDir, "serverInfo.txt");
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(file);
+            String separator = System.getProperty("line.separator");
+            if (serverAvailable) {
+                EmsBean serverInfo = getMBean("jboss.system:type=ServerInfo");
+                fw.write("### Server Information ###" + separator);
+                SortedSet<EmsAttribute> serverInfoAttrs = serverInfo.getAttributes();
+                for (EmsAttribute attr : serverInfoAttrs) {
+                    fw.write(attr.getName());
+                    fw.write("=");
+                    fw.write(attr.getValue().toString());
+                    fw.write(separator);
+                }
+
+                EmsBean server = getMBean("jboss.system:type=Server");
+                fw.write("### Upjas Server Information ###" + separator);
+                SortedSet<EmsAttribute> serverAttrs = server.getAttributes();
+                for (EmsAttribute attr : serverAttrs) {
+                    fw.write(attr.getName());
+                    fw.write("=");
+                    try {
+                        fw.write(attr.getValue().toString());
+                    } catch (Throwable e) {
+                        //ignore the exception.
+                        log.info("Exception at getting value for " + attr.getName(), e);
+                    }
+                    fw.write(separator);
+                }
+            } else {
+                fw.write("### The server is not available. ###" + separator);
+                fw.write("### Operation System Information ###" + separator);
+                fw.write("os.name=" + System.getProperty("os.name"));
+                fw.write(separator);
+                fw.write("os.version=" + System.getProperty("os.version"));
+                fw.write(separator);
+            }
+        } catch (IOException e) {
+            log.info("IOException in generating server information file.", e);
+        } finally {
+            IOUtil.close(fw);
+        }
+
+        return file;
+    }
+
+    /**
+     * @param days in milliseconds.
+     * @return last heap dump file in specified days.
+     */
+    private File getHeapDumpFile(Long days) {
+        File bin = getBinDir();
+        return IOUtil.getLastFile(bin, "heapdump", days);
+    }
+
+    private File getServerLogFile() {
+        Configuration pluginConfiguration = serverComponent.getResourceContext().getPluginConfiguration();
+        String serverHome = pluginConfiguration.getSimpleValue(
+            ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR, null);
+        File logDir = new File(serverHome, "log");
+        File logFile = new File(logDir, "server.log");
+        return logFile;
+    }
+
+    /**
+     * @return the last javacore file which in three days. 
+     */
+    private File getJavaCoreFile() {
+        File bin = getBinDir();
+        File file = IOUtil.getLastFile(bin, "javacore", THREE_DAYS);
+        return file;
+    }
+
+    /**
+     * Generate dump file.
+     * Generate dump file by sending QUIT command to the process when it is not Sun JDK 6 or above.
+     * Generate dump file by jmap tool when it is Sun JDK 6 or above.
+     * 
+     * To generate the dump file.
+     * 1. When it is Sun JDK earlier than JDK 6, the dump file can be generated when the Java option -XX:+HeapDumpOnCtrlBreak need be enabled.
+     * 2. When it is IBM JDK, the environment IBM_HEAPDUMP=true should be set to generate heap dump file. 
+     * 3. When it is IBM JDK, the java core file will be always generated.
+     * 
+     * About sending QUIT command, use sigar package to send QUIT command first. 
+     * It may fail when the process owner is not agent owner on non-windoes environment.
+     */
+    private void generateDumpFile() {
+        boolean isSunJDK6 = isSunJDK6();
+        boolean success = false;
+        ProcessInfo process = this.serverComponent.getResourceContext().getNativeProcess();
+
+        // Generate dump file by quitting process with sigar. 
+        if (!isSunJDK6) {
+            try {
+                process.kill("QUIT");
+                success = true;
+            } catch (SigarException e) {
+                log.info("Cannot generate dump file by Sigar.", e);
+            }
+        }
+
+        // Generate dump file by executing command.
+        if (!success) {
+            String cmd = "";
+            if (isSunJDK6) {
+                cmd = getCmdForSunJDK6(cmd);
+            } else {
+                cmd = "kill -3 ";
+            }
+
+            if (cmd != null) {
+                cmd = cmd + process.getPid();
+                Configuration pluginConfig = serverComponent.getResourceContext().getPluginConfiguration();
+                String prefix = pluginConfig.getSimpleValue(
+                    ApplicationServerPluginConfigurationProperties.SCRIPT_PREFIX_CONFIG_PROP, null);
+                if (prefix != null && !prefix.trim().isEmpty()) {
+                    cmd = prefix + " " + cmd;
+                }
+                try {
+                    Runtime.getRuntime().exec(cmd);
+                    success = true;
+                } catch (IOException e1) {
+                    log.info("Cannot generate javacore file by kill process.", e1);
+                }
+            }
+        }
+
+        if (success) {
+            try {
+                Thread.sleep(5000); //sleep 5 seconds to wait generating java core file. 
+            } catch (InterruptedException e) {
+                log.info("Interrupted at generate javacore file", e);
+            }
+        } else {
+            log.warn("Javacore or thread dump file is not generated successfully.");
+        }
+    }
+
+    private String getCmdForSunJDK6(String cmd) {
+        File javaHome = getJavaHomePath();
+        if (javaHome != null && javaHome.exists()) {
+            File javaBin = new File(javaHome, "bin");
+            File jmap = new File(javaBin, (notWindows() ? "jmap" : "jmap.exe"));
+            if (jmap.exists()) {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+                String date = format.format(new Date());
+                File dir = getBinDir();
+                File threaddump = new File(dir, "heapdump." + date + ".hprof");
+                cmd = jmap.getAbsolutePath() + " -dump:format=b,file=" + threaddump.getAbsolutePath() + " ";
+            }
+        }
+        return cmd;
+    }
+
+    /**
+     * @return whether it is SUN JDK after version 5.0.
+     */
+    private boolean isSunJDK6() {
+        EmsBean serverInfo = getMBean("jboss.system:type=ServerInfo");
+        String javaVendor = getValueInLowerCase(serverInfo, "JavaVendor");
+        if (javaVendor != null && javaVendor.contains("sun")) {
+            String javaVersion = getValueInLowerCase(serverInfo, "JavaVersion");
+            if (javaVersion != null && javaVersion.length() >= 3) {
+                String version = javaVersion.substring(0, 3);
+                double ver = Double.parseDouble(version);
+                if (ver > 1.5) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private String getValueInLowerCase(EmsBean bean, String name) {
+        EmsAttribute attr = bean.getAttribute(name);
+        if (attr != null) {
+            Object value = attr.getValue();
+            if (value != null) {
+                return value.toString().toLowerCase();
+            }
+        }
+        return null;
+    }
+
+    private File getSystemTempDir() {
+        String tmp = System.getProperty("java.io.tmpdir", ".");
+        File tmpDir = new File(tmp);
+        if (!tmpDir.exists()) {
+            tmpDir.mkdirs();
+        }
+        return tmpDir;
+    }
+
+    private File getBinDir() {
+        String jbossHomeDir = serverComponent.getResourceContext().getPluginConfiguration()
+            .getSimpleValue(ApplicationServerPluginConfigurationProperties.HOME_DIR, null);
+        File bin = new File(jbossHomeDir, "bin");
+        return bin;
+    }
+
+    /**
+     * @return return operation result with error message when the server availability equals to the parameter.
+     */
+    private OperationResult checkServerAvailablity(AvailabilityType type) {
+        OperationResult result = null;
+        AvailabilityType avail = this.serverComponent.getAvailability();
+        if (avail == type) {
+            if (avail == AvailabilityType.DOWN) {
+                result = shutdownErrorMessage();
+            }
+
+            if (avail == AvailabilityType.UP) {
+                result = alreadyUpErrorMessage();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return the operation result with error message when the server is already shut down.
+     */
+    private OperationResult shutdownErrorMessage() {
+        OperationResult result = new OperationResult();
+        result.setErrorMessage("The server is already shut down.");
+        return result;
+    }
+
+    /**
+     * @return the operation result with error message when the server is already up.
+     */
+    private OperationResult alreadyUpErrorMessage() {
+        OperationResult result = new OperationResult();
+        result.setErrorMessage("The server is already started.");
+        return result;
+    }
+
+    private Object invokeMBean(String mBeanName, String mBeanOperation) {
+        Configuration pluginConfig = serverComponent.getResourceContext().getPluginConfiguration();
+        String mbeanName = pluginConfig.getSimple(mBeanName).getStringValue();
+        String operationName = pluginConfig.getSimple(mBeanOperation).getStringValue();
+
+        EmsBean bean = getMBean(mbeanName);
+        EmsOperation operation = bean.getOperation(operationName);
+        /*
+         * Now see if we got the 'real' method (the one with no param) or the
+         * overloaded one. This is a workaround for a bug in EMS that prevents
+         * finding operations with same name and different signature.
+         * http://sourceforge
+         * .net/tracker/index.php?func=detail&aid=2007692&group_id
+         * =60228&atid=493495
+         *
+         * In addition, as we offer the user to specify any MBean and any
+         * method, we'd need a clever way for the user to specify parameters
+         * anyway.
+         */
+        List<EmsParameter> params = operation.getParameters();
+        int count = params.size();
+        if (count == 0)
+            return operation.invoke(new Object[0]);
+        else { // overloaded operation
+            return operation.invoke(new Object[] { 0 }); // return code of 0
+        }
+    }
+
+    private EmsBean getMBean(String mbeanName) {
+        EmsConnection connection = this.serverComponent.getEmsConnection();
+        if (connection == null) {
+            throw new RuntimeException("Can not connect to the server");
+        }
+        EmsBean bean = connection.getBean(mbeanName);
+        return bean;
     }
 
     /**
@@ -424,43 +811,9 @@ public class ApplicationServerOperationsDelegate {
      *
      * @return success message if no errors are encountered
      */
-    private String shutdownViaJmx() throws ExecutionFailedException {
-        Configuration pluginConfig = serverComponent.getResourceContext().getPluginConfiguration();
-        String mbeanName = pluginConfig.getSimple(
-            ApplicationServerPluginConfigurationProperties.SHUTDOWN_MBEAN_CONFIG_PROP).getStringValue();
-        String operationName = pluginConfig.getSimple(
-            ApplicationServerPluginConfigurationProperties.SHUTDOWN_MBEAN_OPERATION_CONFIG_PROP).getStringValue();
-
-        EmsConnection connection = this.serverComponent.getEmsConnection();
-        if (connection == null) {
-            throw new ExecutionFailedException("Can not connect to the server");
-        }
-        EmsBean bean = connection.getBean(mbeanName);
-        EmsOperation operation = bean.getOperation(operationName);
-        /*
-         * Now see if we got the 'real' method (the one with no param) or the
-         * overloaded one. This is a workaround for a bug in EMS that prevents
-         * finding operations with same name and different signature.
-         * http://sourceforge
-         * .net/tracker/index.php?func=detail&aid=2007692&group_id
-         * =60228&atid=493495
-         *
-         * In addition, as we offer the user to specify any MBean and any
-         * method, we'd need a clever way for the user to specify parameters
-         * anyway.
-         */
-        try {
-            List<EmsParameter> params = operation.getParameters();
-            int count = params.size();
-            if (count == 0)
-                operation.invoke(new Object[0]);
-            else { // overloaded operation
-                operation.invoke(new Object[] { 0 }); // return code of 0
-            }
-        } catch (RuntimeException e) {
-            throw new ExecutionFailedException("Shutting down the server using JMX failed: " + e.getMessage(), e);
-        }
-        
+    private String shutdownViaJmx() {
+        invokeMBean(ApplicationServerPluginConfigurationProperties.SHUTDOWN_MBEAN_CONFIG_PROP,
+            ApplicationServerPluginConfigurationProperties.SHUTDOWN_MBEAN_OPERATION_CONFIG_PROP);
         return "The server has been shut down.";
     }
 
@@ -574,12 +927,14 @@ public class ApplicationServerOperationsDelegate {
     }
 
     @NotNull
-    private File resolvePathRelativeToHomeDir(@NotNull String path) {
+    private File resolvePathRelativeToHomeDir(@NotNull
+    String path) {
         return resolvePathRelativeToHomeDir(serverComponent.getResourceContext().getPluginConfiguration(), path);
     }
 
     @NotNull
-    private File resolvePathRelativeToHomeDir(Configuration pluginConfig, @NotNull String path) {
+    private File resolvePathRelativeToHomeDir(Configuration pluginConfig, @NotNull
+    String path) {
         File configDir = new File(path);
         if (!configDir.isAbsolute()) {
             String jbossHomeDir = getRequiredPropertyValue(pluginConfig,
@@ -591,7 +946,9 @@ public class ApplicationServerOperationsDelegate {
     }
 
     @NotNull
-    private String getRequiredPropertyValue(@NotNull Configuration config, @NotNull String propName) {
+    private String getRequiredPropertyValue(@NotNull
+    Configuration config, @NotNull
+    String propName) {
         String propValue = config.getSimpleValue(propName, null);
         if (propValue == null) {
             // Something's not right - neither autodiscovery, nor the config
@@ -659,4 +1016,3 @@ public class ApplicationServerOperationsDelegate {
         }
     }
 }
-
