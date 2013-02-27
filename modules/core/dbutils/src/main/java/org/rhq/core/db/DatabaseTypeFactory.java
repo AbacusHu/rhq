@@ -58,6 +58,7 @@ public class DatabaseTypeFactory {
         DB_URL_DRIVER_MAP.put("jdbc:oracle:oci8:", "oracle.jdbc.driver.OracleDriver");
         DB_URL_DRIVER_MAP.put("jdbc:h2:", "org.h2.Driver");
         DB_URL_DRIVER_MAP.put("jdbc:jtds:sqlserver", "net.sourceforge.jtds.jdbc.Driver");
+        DB_URL_DRIVER_MAP.put("jdbc:mysql:", "com.mysql.jdbc.Driver");
     }
 
     /**
@@ -182,6 +183,10 @@ public class DatabaseTypeFactory {
                     database_type_class = SQLServer2005DatabaseType.class;
                 } else if (db_version.startsWith("10.00")) { // SQL Server 2008
                     database_type_class = SQLServer2008DatabaseType.class;
+                }
+            } else if (db_name.indexOf("mysql") != -1) {
+                if (db_version.startsWith("5")) {
+                    database_type_class = MySql5DatabaseType.class;
                 }
             }
 
@@ -346,4 +351,30 @@ public class DatabaseTypeFactory {
     public static boolean isSQLServer(DatabaseType type) {
         return (type instanceof SQLServerDatabaseType);
     }
+
+    /**
+     * Is the database MySql?
+     *
+     * @param  c the connection to the database
+     *
+     * @return <code>true</code> if the connection is talking to a mysql database
+     *
+     * @throws Exception
+     */
+    public static boolean isMySql(Connection c) throws Exception {
+        DatabaseType type = getDatabaseType(c);
+        return isMySql(type);
+    }
+
+    /**
+     * Determines if the given type refers to a Postgres database.
+     *
+     * @param  type
+     *
+     * @return <code>true</code> if the type is a Postgres database
+     */
+    public static boolean isMySql(DatabaseType type) {
+        return (type instanceof MySqlDatabaseType);
+    }
+
 }

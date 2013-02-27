@@ -353,15 +353,15 @@ public class MeasurementDataManagerBeanTest extends AbstractEJB3Test {
     }
 
     public void purge1HourData() {
-        purgeTables("rhq_measurement_data_num_1h");
+        purgeTables("RHQ_MEASUREMENT_DATA_NUM_1H");
     }
 
     public void purge6HourData() {
-        purgeTables("rhq_measurement_data_num_6h");
+        purgeTables("RHQ_MEASUREMENT_DATA_NUM_6H");
     }
 
     public void purge24HourData() {
-        purgeTables("rhq_measurement_data_num_1d");
+        purgeTables("RHQ_MEASUREMENT_DATA_NUM_1D");
     }
 
     private void purgeTables(String... tables) {
@@ -404,7 +404,7 @@ public class MeasurementDataManagerBeanTest extends AbstractEJB3Test {
         try {
             connection = getConnection();
             connection.setAutoCommit(false);
-            String sql = "insert into rhq_measurement_data_num_1h(time_stamp, schedule_id, value, minvalue, maxvalue) values(?, ?, ?, ?, ?)";
+            String sql = "insert into RHQ_MEASUREMENT_DATA_NUM_1H(time_stamp, schedule_id, value, min_value, max_value) values(?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(sql);
 
             for (AggregateTestData datum : data) {

@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
@@ -122,12 +123,7 @@ public class MeasurementOOBManagerBean implements MeasurementOOBManagerLocal {
             String theQuery;
 
             // Compute the OOBs and put them in the tmp table
-            if (dbType instanceof PostgresqlDatabaseType || dbType instanceof H2DatabaseType)
-                theQuery = MeasurementOOB.INSERT_QUERY.replace("%TRUE%", "true");
-            else if (dbType instanceof OracleDatabaseType || dbType instanceof SQLServerDatabaseType)
-                theQuery = MeasurementOOB.INSERT_QUERY.replace("%TRUE%", "1");
-            else
-                throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);
+            theQuery = MeasurementOOB.INSERT_QUERY.replace("%TRUE%", dbType.getBooleanValue(true));
 
             stmt = conn.prepareStatement(theQuery);
 
@@ -161,7 +157,7 @@ public class MeasurementOOBManagerBean implements MeasurementOOBManagerLocal {
                 t1 = System.currentTimeMillis();
                 timings.add((t1 - t0));
                 log.debug("Merge of master table done");
-            } else if (dbType instanceof H2DatabaseType || dbType instanceof SQLServerDatabaseType) {
+            } else if (dbType instanceof H2DatabaseType || dbType instanceof SQLServerDatabaseType || dbType instanceof MySqlDatabaseType) {
                 stmt = conn.prepareStatement(MeasurementOOB.UPDATE_MASTER_GENERIC);
                 stmt.executeUpdate();
                 t1 = System.currentTimeMillis();

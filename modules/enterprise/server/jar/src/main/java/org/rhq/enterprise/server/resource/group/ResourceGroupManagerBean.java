@@ -52,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
@@ -700,9 +701,9 @@ public class ResourceGroupManagerBean implements ResourceGroupManagerLocal, Reso
             conn = rhqDs.getConnection();
 
             explicitStatement = conn
-                .prepareStatement("delete from rhq_resource_group_res_exp_map where resource_group_id = ?");
+                .prepareStatement("delete from RHQ_RESOURCE_GROUP_RES_EXP_MAP where resource_group_id = ?");
             implicitStatement = conn
-                .prepareStatement("delete from rhq_resource_group_res_imp_map where resource_group_id = ?");
+                .prepareStatement("delete from RHQ_RESOURCE_GROUP_RES_IMP_MAP where resource_group_id = ?");
 
             explicitStatement.setInt(1, groupId);
             implicitStatement.setInt(1, groupId);
@@ -1100,19 +1101,14 @@ public class ResourceGroupManagerBean implements ResourceGroupManagerLocal, Reso
 
             if (groupId == null) {
                 // only filter by visibility if the user isn't selecting a group directly
-                if (this.dbType instanceof PostgresqlDatabaseType || this.dbType instanceof H2DatabaseType) {
-                    query = query.replace("%GROUP_AND_VISIBILITY_FRAGMENT_WHERE%", "rg.visible = TRUE");
-                } else if (this.dbType instanceof OracleDatabaseType || this.dbType instanceof SQLServerDatabaseType) {
-                    query = query.replace("%GROUP_AND_VISIBILITY_FRAGMENT_WHERE%", "rg.visible = 1");
-                } else {
-                    throw new RuntimeException("Unknown database type: " + this.dbType);
-                }
+                query = query.replace("%GROUP_AND_VISIBILITY_FRAGMENT_WHERE%",
+                    "rg.visible = " + dbType.getBooleanValue(true));
             } else {
                 // otherwise filter by the passed groupId
                 query = query.replace("%GROUP_AND_VISIBILITY_FRAGMENT_WHERE%", "rg.id = ?");
             }
 
-            if (this.dbType instanceof PostgresqlDatabaseType) {
+            if (this.dbType instanceof PostgresqlDatabaseType || this.dbType instanceof MySqlDatabaseType) {
                 query = PersistenceUtility.addPostgresNativePagingSortingToQuery(query, pc);
             } else if (this.dbType instanceof OracleDatabaseType) {
                 query = PersistenceUtility.addOracleNativePagingSortingToQuery(query, pc);

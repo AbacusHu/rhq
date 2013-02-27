@@ -32,7 +32,7 @@ import org.rhq.core.db.PostgresqlDatabaseType;
  * it has been subsumed inside of configuration objects, which are then associated back to the entity.
  *
  * Each custom alert sender has full control over the structure within that configuration object.  This task represents
- * the work necessary to translate the first-class notification data (previously stored in the rhq_alert_notification
+ * the work necessary to translate the first-class notification data (previously stored in the RHQ_ALERT_NOTIFICATION
  * table itself) into appropriate configuration objects to be used by the custom senders that will be shipped with the
  * product by default.
  *
@@ -117,23 +117,23 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     private String getNotificationLogConversionSQL(String sender, String resultState, String message,
         String notNullField) {
         if (databaseType instanceof PostgresqlDatabaseType) {
-            return "INSERT INTO rhq_alert_notif_log ( id, alert_id, sender, result_state, message )" //
+            return "INSERT INTO RHQ_ALERT_NOTIF_LOG ( id, alert_id, sender, result_state, message )" //
                 + "      SELECT nextval('RHQ_ALERT_NOTIF_LOG_ID_SEQ'), " //
                 + "             notif.alert_id AS notifAlertId, " //
                 + "             " + sender + " AS notifSender, "//
                 + "             " + resultState + " AS notifResultState, " //
                 + "             " + message + " AS notifMessage "//
-                + "        FROM rhq_alert_notif_log notif " //
+                + "        FROM RHQ_ALERT_NOTIF_LOG notif " //
                 + "       WHERE " + notNullField + " IS NOT NULL";
         } else if (databaseType instanceof OracleDatabaseType) {
-            return "INSERT INTO rhq_alert_notif_log ( id, alert_id, sender, result_state, message )" //
+            return "INSERT INTO RHQ_ALERT_NOTIF_LOG ( id, alert_id, sender, result_state, message )" //
                 + "      SELECT RHQ_ALERT_NOTIF_LOG_ID_SEQ.nextval, " //
                 + "             notifAlertId, notifSender, notifResultState, notifMessage "
                 + "        FROM ( SELECT notif.alert_id AS notifAlertId, " //
                 + "                      " + sender + " AS notifSender, "//
                 + "                      " + resultState + " AS notifResultState, " //
                 + "                      " + message + " AS notifMessage "//
-                + "                 FROM rhq_alert_notif_log notif " //
+                + "                 FROM RHQ_ALERT_NOTIF_LOG notif " //
                 + "                WHERE " + notNullField + " IS NOT NULL )";
         } else {
             throw new IllegalStateException(this.getClass().getSimpleName() + " does not support upgrades for "
@@ -156,23 +156,23 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
 
     private String getNotificationLogInsertionSQL(String sender, String resultState, String message, String notNullField) {
         if (databaseType instanceof PostgresqlDatabaseType) {
-            return "INSERT INTO rhq_alert_notif_log ( id, alert_id, sender, result_state, message )" //
+            return "INSERT INTO RHQ_ALERT_NOTIF_LOG ( id, alert_id, sender, result_state, message )" //
                 + "      SELECT nextval('RHQ_ALERT_NOTIF_LOG_ID_SEQ'), " //
                 + "             alert.id AS notifAlertId, " //
                 + "             " + sender + " AS notifSender, "//
                 + "             " + resultState + " AS notifResultState, " //
                 + "             " + message + " AS notifMessage "//
-                + "        FROM rhq_alert alert " //
+                + "        FROM RHQ_ALERT alert " //
                 + "       WHERE " + notNullField + " IS NOT NULL";
         } else if (databaseType instanceof OracleDatabaseType) {
-            return "INSERT INTO rhq_alert_notif_log ( id, alert_id, sender, result_state, message )" //
+            return "INSERT INTO RHQ_ALERT_NOTIF_LOG ( id, alert_id, sender, result_state, message )" //
                 + "      SELECT RHQ_ALERT_NOTIF_LOG_ID_SEQ.nextval, " //
                 + "             notifAlertId, notifSender, notifResultState, notifMessage "
                 + "        FROM ( SELECT alert.id AS notifAlertId, " //
                 + "                      " + sender + " AS notifSender, "//
                 + "                      " + resultState + " AS notifResultState, " //
                 + "                      " + message + " AS notifMessage "//
-                + "                 FROM rhq_alert alert " //
+                + "                 FROM RHQ_ALERT alert " //
                 + "                WHERE " + notNullField + " IS NOT NULL )";
         } else {
             throw new IllegalStateException(this.getClass().getSimpleName() + " does not support upgrades for "
@@ -202,7 +202,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     private void upgradeSubjectNotifications() throws SQLException {
         String dataMapSQL = "" //
             + "  SELECT notif.alert_definition_id, notif.subject_id "//
-            + "    FROM rhq_alert_notification notif "//
+            + "    FROM RHQ_ALERT_NOTIFICATION notif "//
             + "   WHERE notif.notification_type = 'SUBJECT' "//
             + "ORDER BY notif.alert_definition_id";
         List<Object[]> data = databaseType.executeSelectSql(connection, dataMapSQL);
@@ -216,7 +216,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     private void upgradeRoleNotifications() throws SQLException {
         String dataMapSQL = "" //
             + "  SELECT notif.alert_definition_id, notif.role_id "//
-            + "    FROM rhq_alert_notification notif "//
+            + "    FROM RHQ_ALERT_NOTIFICATION notif "//
             + "   WHERE notif.notification_type = 'ROLE' "//
             + "ORDER BY notif.alert_definition_id";
 
@@ -231,7 +231,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     private void upgradeEmailNotifications() throws SQLException {
         String dataMapSQL = "" //
             + "  SELECT notif.alert_definition_id, notif.email_address "//
-            + "    FROM rhq_alert_notification notif "//
+            + "    FROM RHQ_ALERT_NOTIFICATION notif "//
             + "   WHERE notif.notification_type = 'EMAIL' "//
             + "ORDER BY notif.alert_definition_id";
 
@@ -246,7 +246,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     private void upgradeSNMPNotifications() throws SQLException {
         String dataMapSQL = "" //
             + "  SELECT notif.alert_definition_id, notif.snmp_host, notif.snmp_port, notif.snmp_oid "//
-            + "    FROM rhq_alert_notification notif "//
+            + "    FROM RHQ_ALERT_NOTIFICATION notif "//
             + "   WHERE notif.notification_type = 'SNMP' "//
             + "ORDER BY notif.alert_definition_id";
 
@@ -267,7 +267,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     private void upgradeOperationNotifications() throws SQLException {
         String dataMapSQL = "" //
             + "  SELECT def.id, def.operation_def_id" //
-            + "    FROM rhq_alert_definition def" //
+            + "    FROM RHQ_ALERT_DEFINITION def" //
             + "   WHERE def.operation_def_id IS NOT NULL"; // not all alert definitions have operation notifications
 
         List<Object[]> data = databaseType.executeSelectSql(connection, dataMapSQL);
@@ -338,7 +338,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
         }
 
         // We have work to do ...
-        configId = databaseType.getNextSequenceValue(connection, "rhq_config", "id");
+        configId = databaseType.getNextSequenceValue(connection, "RHQ_CONFIG", "id");
         String insertConfigSQL = getInsertConfigSQL(configId);
         databaseType.executeSql(connection, insertConfigSQL);
 
@@ -359,7 +359,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
 
             String propertyValue = (String) next[1];
 
-            int propertyId = databaseType.getNextSequenceValue(connection, "rhq_config_property", "id");
+            int propertyId = databaseType.getNextSequenceValue(connection, "RHQ_CONFIG_PROPERTY", "id");
             String insertPropertySQL = getInsertPropertySQL(propertyId, configId, propertyName, propertyValue);
             databaseType.executeSql(connection, insertPropertySQL);
         }
@@ -387,7 +387,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     int getPluginConfigurationId(String pluginName) throws SQLException {
         String getConfigIdSQL = "" //
             + " SELECT plugin_config_id " //
-            + " FROM rhq_plugin"  //
+            + " FROM RHQ_PLUGIN" //
             + " WHERE name = '" + pluginName + "'";
         List<Object[]> data = databaseType.executeSelectSql(connection, getConfigIdSQL);
 
@@ -435,7 +435,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     }
 
     private int persistConfiguration(String... propertyNameValues) throws SQLException {
-        int configId = databaseType.getNextSequenceValue(connection, "rhq_config", "id");
+        int configId = databaseType.getNextSequenceValue(connection, "RHQ_CONFIG", "id");
         String insertConfigSQL = getInsertConfigSQL(configId);
         databaseType.executeSql(connection, insertConfigSQL);
 
@@ -443,7 +443,7 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
             String propertyName = propertyNameValues[i];
             String propertyValue = propertyNameValues[i + 1];
 
-            int propertyId = databaseType.getNextSequenceValue(connection, "rhq_config_property", "id");
+            int propertyId = databaseType.getNextSequenceValue(connection, "RHQ_CONFIG_PROPERTY", "id");
             String insertPropertySQL = getInsertPropertySQL(propertyId, configId, propertyName, propertyValue);
             databaseType.executeSql(connection, insertPropertySQL);
         }
@@ -452,31 +452,31 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
     }
 
     private void persistNotification(int definitionId, int configId, String sender) throws SQLException {
-        int notificationId = databaseType.getNextSequenceValue(connection, "rhq_alert_notification", "id");
+        int notificationId = databaseType.getNextSequenceValue(connection, "RHQ_ALERT_NOTIFICATION", "id");
         String insertNotificationSQL = getInsertNotificationSQL(notificationId, definitionId, configId, sender);
 
         databaseType.executeSql(connection, insertNotificationSQL);
     }
 
     private String getInsertConfigSQL(int id) {
-        return "INSERT INTO rhq_config ( id, version, ctime, mtime )" //
+        return "INSERT INTO RHQ_CONFIG ( id, version, ctime, mtime )" //
             + "      VALUES ( " + id + ", 0, " + NOW + ", " + NOW + " ) ";
     }
 
     private String getInsertPropertySQL(int id, int configId, String name, String value) {
-        return "INSERT INTO rhq_config_property ( id, configuration_id, name, string_value, dtype )" //
+        return "INSERT INTO RHQ_CONFIG_PROPERTY ( id, configuration_id, name, string_value, dtype )" //
             + "      VALUES ( " + id + ", " + configId + ", '" + name + "', '" + value + "', 'property' ) ";
     }
 
     private String getInsertNotificationSQL(int id, int definitionId, int configId, String sender) {
-        return "INSERT INTO rhq_alert_notification ( id, alert_definition_id, sender_config_id, sender_name )" //
+        return "INSERT INTO RHQ_ALERT_NOTIFICATION ( id, alert_definition_id, sender_config_id, sender_name )" //
             + "      VALUES ( " + id + ", " + definitionId + ", " + configId + ", '" + sender + "' ) ";
     }
     
     private int getPluginId(String pluginName) throws SQLException {
         String sql = ""
             + "SELECT id "
-            + "FROM rhq_plugin " 
+ + "FROM RHQ_PLUGIN "
             + "WHERE name = '" + pluginName + "'";
         
         List<Object[]> data = databaseType.executeSelectSql(connection, sql);
@@ -490,15 +490,15 @@ public class CustomAlertSenderUpgradeTask implements DatabaseUpgradeTask {
 
     private void setPluginConfiguration(int pluginId, int configurationId) throws SQLException {
         databaseType.executeSql(connection, 
-            "UPDATE rhq_plugin SET plugin_config_id = " + configurationId 
+ "UPDATE RHQ_PLUGIN SET plugin_config_id = " + configurationId
             + " WHERE id = " + pluginId);
     }
     
     private int insertPluginEntry(String pluginName, String displayName, String description, String deploymentType, String pluginDescriptorType) throws SQLException {
-        int pluginId = databaseType.getNextSequenceValue(connection, "rhq_plugin", "id");
+        int pluginId = databaseType.getNextSequenceValue(connection, "RHQ_PLUGIN", "id");
         
         String sql = ""
-            + "INSERT INTO rhq_plugin(id, name, display_name, description, enabled, status, path, md5, ctime, mtime, deployment, ptype) "
+            + "INSERT INTO RHQ_PLUGIN(id, name, display_name, description, enabled, status, path, md5, ctime, mtime, deployment, ptype) "
             + "VALUES(" 
             + pluginId + ", " //id
             + "'" + pluginName + "', " //name

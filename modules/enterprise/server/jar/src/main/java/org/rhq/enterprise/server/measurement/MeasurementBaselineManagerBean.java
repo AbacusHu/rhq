@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
@@ -238,28 +239,24 @@ public class MeasurementBaselineManagerBean implements MeasurementBaselineManage
             // when the entity manager performs native queries under heavy load
             conn = dataSource.getConnection();
             DatabaseType dbType = DatabaseTypeFactory.getDatabaseType(conn);
-
-            if (dbType instanceof PostgresqlDatabaseType || dbType instanceof H2DatabaseType) {
-                insertQuery = conn.prepareStatement(MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_POSTGRES);
-                insertQuery.setLong(1, computeTime);
-                insertQuery.setLong(2, startTime);
-                insertQuery.setLong(3, endTime);
-                insertQuery.setLong(4, startTime);
+            String sql = null;
+            if (dbType instanceof MySqlDatabaseType){
+                sql = MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_MYSQL;
+            } else if (dbType instanceof PostgresqlDatabaseType || dbType instanceof H2DatabaseType) {
+               sql = MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_POSTGRES;
             } else if (dbType instanceof OracleDatabaseType) {
-                insertQuery = conn.prepareStatement(MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_ORACLE);
-                insertQuery.setLong(1, computeTime);
-                insertQuery.setLong(2, startTime);
-                insertQuery.setLong(3, endTime);
-                insertQuery.setLong(4, startTime);
+                sql = MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_ORACLE;
             } else if (dbType instanceof SQLServerDatabaseType) {
-                insertQuery = conn.prepareStatement(MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_SQLSERVER);
-                insertQuery.setLong(1, computeTime);
-                insertQuery.setLong(2, startTime);
-                insertQuery.setLong(3, endTime);
-                insertQuery.setLong(4, startTime);
+                sql = MeasurementBaseline.NATIVE_QUERY_CALC_FIRST_AUTOBASELINE_SQLSERVER;
             } else {
                 throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);
             }
+            
+            insertQuery = conn.prepareStatement(sql);
+            insertQuery.setLong(1, computeTime);
+            insertQuery.setLong(2, startTime);
+            insertQuery.setLong(3, endTime);
+            insertQuery.setLong(4, startTime);
 
             int inserted = insertQuery.executeUpdate();
             return inserted;

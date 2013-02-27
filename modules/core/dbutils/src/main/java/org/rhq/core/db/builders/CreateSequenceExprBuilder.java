@@ -18,14 +18,15 @@
  */
 package org.rhq.core.db.builders;
 
+import java.util.HashMap;
+
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.FeatureNotSupportedException;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
-
-import java.util.HashMap;
 
 /**
  * @author Robert Buck
@@ -36,6 +37,9 @@ public abstract class CreateSequenceExprBuilder {
     public static final String KEY_SEQ_START = "SEQ_START";
     public static final String KEY_SEQ_INCREMENT = "SEQ_INCREMENT";
     public static final String KEY_SEQ_CACHE_SIZE = "SEQ_CACHE_SIZE";
+    public static final String SEQ_SUFFIX = "_ID_SEQ";
+    public static final String SEQ_SUFFIX_I = "_I_SEQ"; // It is used for I column in RHQ_NUMBERS table.
+    public static final String BAD_SEQ_NAME = "Sequences named must end in " + SEQ_SUFFIX;
 
     public static CreateSequenceExprBuilder getBuilder(DatabaseType type) {
         return getBuilder(type.getVendor());
@@ -54,8 +58,11 @@ public abstract class CreateSequenceExprBuilder {
         if (H2DatabaseType.VENDOR_NAME.equals(type)) {
             return new H2InnerBuilder();
         }
-        throw new UnsupportedOperationException("Cannot create a CREATE SEQUENCE builder for the requested database type: "
-                + type);
+        if (MySqlDatabaseType.VENDOR_NAME.equals(type)) {
+            return new MySqlInnerBuilder();
+        }
+        throw new UnsupportedOperationException(
+            "Cannot create a CREATE SEQUENCE builder for the requested database type: " + type);
     }
 
     /**
@@ -63,7 +70,7 @@ public abstract class CreateSequenceExprBuilder {
      */
     public static final int USE_SEQID_NOCACHE_SIZE = 0;
 
-    @SuppressWarnings({"UnusedParameters"})
+    @SuppressWarnings({ "UnusedParameters" })
     public static int getSafeSequenceCacheSize(CreateSequenceExprBuilder builder, String requestedSize) {
         // we don't want to regress for the time being, and we don't want
         // to default less than manufacturers recommended minimums...
@@ -141,9 +148,8 @@ public abstract class CreateSequenceExprBuilder {
 
         @Override
         protected StringBuilder appendCreateSeqStem(HashMap<String, Object> terms, StringBuilder builder) {
-            builder.append("CREATE SEQUENCE ").append(terms.get(KEY_SEQ_NAME))
-                    .append(" START ").append(terms.get(KEY_SEQ_START))
-                    .append(" INCREMENT ").append(terms.get(KEY_SEQ_INCREMENT));
+            builder.append("CREATE SEQUENCE ").append(terms.get(KEY_SEQ_NAME)).append(" START ")
+                .append(terms.get(KEY_SEQ_START)).append(" INCREMENT ").append(terms.get(KEY_SEQ_INCREMENT));
             return builder;
         }
 
@@ -177,10 +183,9 @@ public abstract class CreateSequenceExprBuilder {
 
         @Override
         protected StringBuilder appendCreateSeqStem(HashMap<String, Object> terms, StringBuilder builder) {
-            builder.append("CREATE SEQUENCE ").append(terms.get(KEY_SEQ_NAME))
-                    .append(" START WITH ").append(terms.get(KEY_SEQ_START))
-                    .append(" INCREMENT BY ").append(terms.get(KEY_SEQ_INCREMENT))
-                    .append(" NOMAXVALUE NOCYCLE");
+            builder.append("CREATE SEQUENCE ").append(terms.get(KEY_SEQ_NAME)).append(" START WITH ")
+                .append(terms.get(KEY_SEQ_START)).append(" INCREMENT BY ").append(terms.get(KEY_SEQ_INCREMENT))
+                .append(" NOMAXVALUE NOCYCLE");
             return builder;
         }
 
@@ -195,8 +200,6 @@ public abstract class CreateSequenceExprBuilder {
      */
     private static class SqlServerInnerBuilder extends CreateSequenceExprBuilder {
 
-        public static final String SEQ_SUFFIX = "_ID_SEQ";
-
         @Override
         public int getFactorySequenceCacheSize() {
             return 10; // for identity columns only; not applicable for Denali! In Denali the default is 50
@@ -206,14 +209,13 @@ public abstract class CreateSequenceExprBuilder {
         protected StringBuilder appendCreateSeqStem(HashMap<String, Object> terms, StringBuilder builder) {
             final String name = ((String) terms.get(CreateSequenceExprBuilder.KEY_SEQ_NAME)).toUpperCase();
             if (!name.endsWith(SEQ_SUFFIX)) {
-                throw new FeatureNotSupportedException(SQLServerDatabaseType.SEQ_ERROR_MSG);
+                throw new FeatureNotSupportedException(BAD_SEQ_NAME);
             }
             String tableName = name.substring(0, name.length() - SEQ_SUFFIX.length());
 
-            builder.append("ALTER TABLE ").append(tableName)
-                    .append(" ALTER COLUMN ID IDENTITY( ").append(terms.get(CreateSequenceExprBuilder.KEY_SEQ_START))
-                    .append(", ").append(terms.get(CreateSequenceExprBuilder.KEY_SEQ_INCREMENT))
-                    .append(")");
+            builder.append("ALTER TABLE ").append(tableName).append(" ALTER COLUMN ID IDENTITY( ")
+                .append(terms.get(CreateSequenceExprBuilder.KEY_SEQ_START)).append(", ")
+                .append(terms.get(CreateSequenceExprBuilder.KEY_SEQ_INCREMENT)).append(")");
             return builder;
         }
 
@@ -247,9 +249,8 @@ public abstract class CreateSequenceExprBuilder {
 
         @Override
         protected StringBuilder appendCreateSeqStem(HashMap<String, Object> terms, StringBuilder builder) {
-            builder.append("CREATE SEQUENCE ").append(terms.get(KEY_SEQ_NAME))
-                    .append(" START WITH ").append(terms.get(KEY_SEQ_START))
-                    .append(" INCREMENT BY ").append(terms.get(KEY_SEQ_INCREMENT));
+            builder.append("CREATE SEQUENCE ").append(terms.get(KEY_SEQ_NAME)).append(" START WITH ")
+                .append(terms.get(KEY_SEQ_START)).append(" INCREMENT BY ").append(terms.get(KEY_SEQ_INCREMENT));
             return builder;
         }
 
@@ -261,5 +262,48 @@ public abstract class CreateSequenceExprBuilder {
             return appendSeqIdCacheTerms(terms, builder);
         }
     }
-}
 
+    /**
+     * @author liqian to support MySql DB
+     */
+    private static class MySqlInnerBuilder extends CreateSequenceExprBuilder {
+
+        @Override
+        protected StringBuilder appendCreateSeqStem(HashMap<String, Object> terms, StringBuilder builder) {
+            final String name = ((String) terms.get(CreateSequenceExprBuilder.KEY_SEQ_NAME)).toUpperCase();
+
+            String tableName = getTablename(name);
+
+            builder.append("ALTER TABLE ").append(tableName).append(" AUTO_INCREMENT = ")
+                .append(terms.get(CreateSequenceExprBuilder.KEY_SEQ_START));
+            return builder;
+        }
+
+        @Override
+        protected StringBuilder appendCreateSeqCacheSize(HashMap<String, Object> terms, StringBuilder builder) {
+            return builder;
+        }
+
+        @Override
+        protected StringBuilder appendSeqIdNoCacheTerms(HashMap<String, Object> terms, StringBuilder builder) {
+            return builder;
+        }
+    }
+
+    /**
+     * JON only support the sequence whose name end with <code>SEQ_SUFFIX</code>.
+     * @param sequence
+     * @return tableName
+     */
+    private static String getTablename(String sequence) {
+        if (sequence.endsWith(SEQ_SUFFIX)) {
+            return sequence.substring(0, sequence.length() - SEQ_SUFFIX.length());
+        }
+
+        if (sequence.endsWith(SEQ_SUFFIX_I)) {
+            return sequence.substring(0, sequence.length() - SEQ_SUFFIX_I.length());
+        }
+
+        throw new FeatureNotSupportedException(BAD_SEQ_NAME);
+    }
+}

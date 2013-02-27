@@ -48,11 +48,4 @@ public class H2Column extends Column {
             }
         }
     }
-
-    private String getSequenceName() {
-        String tableName = this.m_strTableName.toUpperCase();
-        String columnName = this.getName().toUpperCase();
-        String sequenceName = tableName + '_' + columnName + "_SEQ";
-        return sequenceName;
-    }
 }

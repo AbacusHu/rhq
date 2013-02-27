@@ -91,7 +91,7 @@ public abstract class AbstractConfigurationObfuscationUpgradeTask implements Dat
                 return Collections.emptyList();
             }
 
-            String sql = "SELECT id, name, dtype, simple_type FROM rhq_config_prop_def WHERE ";
+            String sql = "SELECT id, name, dtype, simple_type FROM RHQ_CONFIG_PROP_DEF WHERE ";
             switch (type) {
             case MAP:
                 sql += "parent_map_definition_id = " + id;
@@ -135,7 +135,7 @@ public abstract class AbstractConfigurationObfuscationUpgradeTask implements Dat
                 return Collections.emptyList();
             }
 
-            String sql = "SELECT id, name, dtype, string_value FROM rhq_config_property WHERE ";
+            String sql = "SELECT id, name, dtype, string_value FROM RHQ_CONFIG_PROPERTY WHERE ";
             switch (type) {
             case MAP:
                 sql += "parent_map_id = " + id;
@@ -229,10 +229,10 @@ public abstract class AbstractConfigurationObfuscationUpgradeTask implements Dat
                 if (p.value != null) {
                     String obfuscatedValue = Obfuscator.encode(p.value);
                     sql =
-                        "UPDATE rhq_config_property SET string_value = '" + obfuscatedValue
+ "UPDATE RHQ_CONFIG_PROPERTY SET string_value = '" + obfuscatedValue
                             + "', dtype = 'obfuscated' WHERE id = " + p.id;
                 } else {
-                    sql = "UPDATE rhq_config_property SET dtype='obfuscated' WHERE id = " + p.id;
+                    sql = "UPDATE RHQ_CONFIG_PROPERTY SET dtype='obfuscated' WHERE id = " + p.id;
                 }
                 
                 databaseType.executeSql(connection, sql);
@@ -243,7 +243,8 @@ public abstract class AbstractConfigurationObfuscationUpgradeTask implements Dat
 
     private List<PropertyDefinition> getTopDefinitions(int configurationDefinitionId) throws SQLException {
         String sql =
-            "SELECT id, name, dtype, simple_type FROM rhq_config_prop_def WHERE config_def_id = " + configurationDefinitionId;
+ "SELECT id, name, dtype, simple_type FROM RHQ_CONFIG_PROP_DEF WHERE config_def_id = "
+            + configurationDefinitionId;
 
         List<Object[]> results = databaseType.executeSelectSql(connection, sql);
 
@@ -263,7 +264,8 @@ public abstract class AbstractConfigurationObfuscationUpgradeTask implements Dat
 
     private List<Property> getTopProperties(int configurationId) throws SQLException {
         String sql =
-            "SELECT id, name, dtype, string_value FROM rhq_config_property WHERE configuration_id = " + configurationId;
+ "SELECT id, name, dtype, string_value FROM RHQ_CONFIG_PROPERTY WHERE configuration_id = "
+            + configurationId;
 
         List<Object[]> results = databaseType.executeSelectSql(connection, sql);
 

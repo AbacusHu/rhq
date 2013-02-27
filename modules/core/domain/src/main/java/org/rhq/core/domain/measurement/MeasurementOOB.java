@@ -156,29 +156,29 @@ public class MeasurementOOB {
      *                  metrics across varying magnitudes of metric baseline deltas.
      */
     public static final String INSERT_QUERY = "" //
-        + "INSERT INTO rhq_measurement_oob_tmp (oob_factor, schedule_id, time_stamp ) \n" //
+        + "INSERT INTO RHQ_MEASUREMENT_OOB_TMP (oob_factor, schedule_id, time_stamp ) \n" //
         + "     ( SELECT max(mx*100) as mxdiff, id, ? \n" //  ?1 = begin
-        + "         FROM ( SELECT max(((d.maxvalue - b.bl_max) / (b.bl_max - b.bl_min))) AS mx, d.schedule_id as id \n" //
-        + "                  FROM rhq_measurement_bline b, rhq_measurement_data_num_1h d, rhq_measurement_sched sc, rhq_measurement_def def \n" //
+        + "         FROM ( SELECT max(((d.max_value - b.bl_max) / (b.bl_max - b.bl_min))) AS mx, d.schedule_id as id \n" //
+        + "                  FROM RHQ_MEASUREMENT_BLINE b, RHQ_MEASUREMENT_DATA_NUM_1H d, RHQ_MEASUREMENT_SCHED sc, RHQ_MEASUREMENT_DEF def \n" //
         + "                 WHERE b.schedule_id = d.schedule_id \n" //
         + "                   AND sc.id = b.schedule_id \n" //
         + "                   AND d.value > b.bl_max \n" //
         + "                   AND d.time_stamp = ? \n" // ?2 = begin
         + "                   AND (b.bl_max - b.bl_min) > 0.1 \n" //
-        + "                   AND (d.maxvalue - b.bl_max) >0 \n " //
+        + "                   AND (d.max_value - b.bl_max) >0 \n " //
         + "                   AND sc.enabled = %TRUE% \n" //
         + "                   AND sc.definition = def.id \n" //
         + "                   AND def.numeric_type = 0 \n" // Only dynamic metrics
         + "              GROUP BY d.schedule_id \n" //
         + "UNION ALL \n" //
-        + "      SELECT max(((b.bl_min - d.minvalue) / (b.bl_max - b.bl_min))) AS mx, d.schedule_id as id \n" //
-        + "        FROM rhq_measurement_bline b, rhq_measurement_data_num_1h d, rhq_measurement_sched sc, rhq_measurement_def def \n" //
+        + "      SELECT max(((b.bl_min - d.min_value) / (b.bl_max - b.bl_min))) AS mx, d.schedule_id as id \n" //
+        + "        FROM RHQ_MEASUREMENT_BLINE b, RHQ_MEASUREMENT_DATA_NUM_1H d, RHQ_MEASUREMENT_SCHED sc, RHQ_MEASUREMENT_DEF def \n" //
         + "       WHERE b.schedule_id = d.schedule_id \n" //
         + "         AND sc.id = b.schedule_id \n" //
         + "         AND d.value < b.bl_max  \n" //
         + "         AND d.time_stamp = ? \n" // ?3 = begin
         + "         AND (b.bl_max - b.bl_min) > 0.1 \n" //
-        + "         AND (b.bl_min - d.minvalue) >0 \n" //
+        + "         AND (b.bl_min - d.min_value) >0 \n" //
         + "         AND sc.enabled = %TRUE% \n" //
         + "         AND sc.definition = def.id \n" //
         + "         AND def.numeric_type = 0 \n" //
@@ -188,15 +188,15 @@ public class MeasurementOOB {
         + "  HAVING mx > 0.05 )";
 
     public static final String UPDATE_MASTER_POSTGRES = "" //
-        + "UPDATE rhq_measurement_oob \n"
-        + "   SET oob_factor = rhq_measurement_oob_tmp.oob_factor,time_stamp=rhq_measurement_oob_tmp.time_stamp \n"
-        + "  FROM rhq_measurement_oob_tmp \n"
-        + " WHERE rhq_measurement_oob_tmp.oob_factor > rhq_measurement_oob.oob_factor \n"
-        + "   AND rhq_measurement_oob_tmp.schedule_id = rhq_measurement_oob.schedule_id ";
+        + "UPDATE RHQ_MEASUREMENT_OOB \n"
+        + "   SET oob_factor = RHQ_MEASUREMENT_OOB_TMP.oob_factor,time_stamp=RHQ_MEASUREMENT_OOB_TMP.time_stamp \n"
+        + "  FROM RHQ_MEASUREMENT_OOB_TMP \n"
+        + " WHERE RHQ_MEASUREMENT_OOB_TMP.oob_factor > RHQ_MEASUREMENT_OOB.oob_factor \n"
+        + "   AND RHQ_MEASUREMENT_OOB_TMP.schedule_id = RHQ_MEASUREMENT_OOB.schedule_id ";
 
     public static final String MERGE_TABLES_ORACLE = "" //
-        + "MERGE INTO rhq_measurement_oob oob_ \n" //
-        + "     USING rhq_measurement_oob_tmp tmp_ \n" //
+        + "MERGE INTO RHQ_MEASUREMENT_OOB oob_ \n" //
+        + "     USING RHQ_MEASUREMENT_OOB_TMP tmp_ \n" //
         + "        ON ( tmp_.schedule_id = oob_.schedule_id ) \n"
         + "      WHEN MATCHED THEN UPDATE SET oob_factor = tmp_.oob_factor, time_stamp = tmp_.time_stamp \n"
         + "      WHEN NOT MATCHED THEN INSERT ( oob_.schedule_id, oob_.time_stamp, oob_.oob_factor ) \n"
@@ -208,21 +208,21 @@ public class MeasurementOOB {
      * obsolete, and follow that up with a call to INSERT_NEW_ONES, which should give us the same effect as row updates
      */
     public static final String UPDATE_MASTER_GENERIC = "" //
-        + "DELETE FROM rhq_measurement_oob \n" //
+        + "DELETE FROM RHQ_MEASUREMENT_OOB \n" //
         + "      WHERE EXISTS ( SELECT oob_tmp.schedule_id \n" //
-        + "                       FROM rhq_measurement_oob_tmp oob_tmp \n" //
-        + "                      WHERE oob_tmp.oob_factor > rhq_measurement_oob.oob_factor \n" //
-        + "                        AND oob_tmp.schedule_id = rhq_measurement_oob.schedule_id ) ";
+        + "                       FROM RHQ_MEASUREMENT_OOB_TMP oob_tmp \n" //
+        + "                      WHERE oob_tmp.oob_factor > RHQ_MEASUREMENT_OOB.oob_factor \n" //
+        + "                        AND oob_tmp.schedule_id = RHQ_MEASUREMENT_OOB.schedule_id ) ";
 
     public static final String INSERT_NEW_ONES = "" //
-        + "INSERT INTO rhq_measurement_oob (oob_factor, schedule_id, time_stamp) \n"
+        + "INSERT INTO RHQ_MEASUREMENT_OOB (oob_factor, schedule_id, time_stamp) \n"
         + "     ( SELECT oob_factor, schedule_id,  time_stamp \n"
-        + "         FROM rhq_measurement_oob_tmp \n"
-        + "        WHERE NOT EXISTS ( SELECT rhq_measurement_oob.schedule_id \n "
-        + "                             FROM rhq_measurement_oob \n "
-        + "                            WHERE rhq_measurement_oob.schedule_id = rhq_measurement_oob_tmp.schedule_id ) )";
+        + "         FROM RHQ_MEASUREMENT_OOB_TMP \n"
+        + "        WHERE NOT EXISTS ( SELECT RHQ_MEASUREMENT_OOB.schedule_id \n "
+        + "                             FROM RHQ_MEASUREMENT_OOB \n "
+        + "                            WHERE RHQ_MEASUREMENT_OOB.schedule_id = RHQ_MEASUREMENT_OOB_TMP.schedule_id ) )";
 
-    public static final String TRUNCATE_TMP_TABLE = "TRUNCATE TABLE rhq_measurement_oob_tmp";
+    public static final String TRUNCATE_TMP_TABLE = "TRUNCATE TABLE RHQ_MEASUREMENT_OOB_TMP";
 
     public static final String SECURITY_ADDITION = "" //
         + " AND ( res.id IN ( SELECT rr.id  FROM Resource rr " //

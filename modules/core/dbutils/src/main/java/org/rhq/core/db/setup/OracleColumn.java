@@ -19,14 +19,14 @@
 package org.rhq.core.db.setup;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
-import org.rhq.core.db.OracleDatabaseType;
-import org.rhq.core.db.builders.CreateSequenceExprBuilder;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
 import org.rhq.core.db.DatabaseType;
+import org.rhq.core.db.OracleDatabaseType;
+import org.rhq.core.db.builders.CreateSequenceExprBuilder;
 
 class OracleColumn extends Column {
     protected OracleColumn(Node node, Table table) throws SAXException {
@@ -56,7 +56,7 @@ class OracleColumn extends Column {
             switch (this.getDefault()) {
             case Column.DEFAULT_AUTO_INCREMENT:
             case Column.DEFAULT_SEQUENCE_ONLY: {
-                String strSeqName = this.m_strTableName.toUpperCase() + '_' + this.getName().toUpperCase() + "_SEQ";
+                String strSeqName = getSequenceName();
                 cmds.add(0, buildSequenceSqlExpr(CreateSequenceExprBuilder.getBuilder(OracleDatabaseType.VENDOR),
                         strSeqName));
                 break;
@@ -71,7 +71,7 @@ class OracleColumn extends Column {
         if (this.hasDefault()) {
             switch (this.getDefault()) {
             case Column.DEFAULT_AUTO_INCREMENT: {
-                String strSeqName = this.m_strTableName.toUpperCase() + '_' + this.getName().toUpperCase() + "_SEQ";
+                String strSeqName = getSequenceName();
                 cmds.add("CREATE OR REPLACE TRIGGER " + strSeqName + "_T " + "BEFORE INSERT ON " + this.m_strTableName
                     + " " + "FOR EACH ROW " + "BEGIN " + "SELECT " + strSeqName + ".NEXTVAL INTO :NEW."
                     + this.getName().toUpperCase() + " FROM DUAL; " + "END;");
@@ -86,7 +86,7 @@ class OracleColumn extends Column {
             switch (this.getDefault()) {
             case Column.DEFAULT_SEQUENCE_ONLY:
             case Column.DEFAULT_AUTO_INCREMENT: {
-                String strSeqName = this.m_strTableName.toUpperCase() + '_' + this.getName().toUpperCase() + "_SEQ";
+                String strSeqName = getSequenceName();
                 cmds.add("DROP SEQUENCE " + strSeqName);
 
                 // Dropping the table automatically drops the sequence
@@ -99,4 +99,6 @@ class OracleColumn extends Column {
             }
         }
     }
+
+
 }

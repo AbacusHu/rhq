@@ -596,8 +596,8 @@ public class MeasurementBaselineManagerTest extends AbstractEJB3Test {
 
     private void insertMeasurementDataNumeric1H(long timeStamp, MeasurementSchedule schedule, double value, double min,
         double max) {
-        String sql = "INSERT INTO RHQ_measurement_data_num_1h "
-            + "(time_stamp, schedule_id, value, minvalue, maxvalue) " + "VALUES (" + timeStamp + "," + schedule.getId()
+        String sql = "INSERT INTO RHQ_MEASUREMENT_DATA_NUM_1H "
+            + "(time_stamp, schedule_id, value, min_value, max_value) " + "VALUES (" + timeStamp + "," + schedule.getId()
             + "," + value + "," + min + "," + max + ")";
 
         Query q = em.createNativeQuery(sql);
@@ -605,7 +605,7 @@ public class MeasurementBaselineManagerTest extends AbstractEJB3Test {
     }
 
     private void deleteMeasurementDataNumeric1H(MeasurementSchedule schedule) {
-        String sql = "DELETE FROM RHQ_measurement_data_num_1h WHERE schedule_id = " + schedule.getId();
+        String sql = "DELETE FROM RHQ_MEASUREMENT_DATA_NUM_1H WHERE schedule_id = " + schedule.getId();
 
         Query q = em.createNativeQuery(sql);
         q.executeUpdate();

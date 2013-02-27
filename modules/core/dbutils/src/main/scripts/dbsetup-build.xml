@@ -60,6 +60,7 @@ To run the default target, you must set one of the following properties to true:
         <pathelement path="${task.classpath.property}" />
         <pathelement location="${settings.localRepository}/com/oracle/ojdbc6/${ojdbc6.version}/ojdbc6-${ojdbc6.version}.jar"/>
         <pathelement location="${settings.localRepository}/postgresql/postgresql/${postgresql.version}/postgresql-${postgresql.version}.jar"/>
+        <pathelement location="${settings.localRepository}/mysql/mysql-connector-java/${mysql.version}/mysql-connector-java-${mysql.version}.jar"/>
         <pathelement location="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar"/>
         <pathelement location="${settings.localRepository}/net/sourceforge/jtds/jtds/${jtds.version}/jtds-${jtds.version}.jar"/>
      </path>
@@ -340,6 +341,7 @@ To run the default target, you must set one of the following properties to true:
          <classpath>
             <pathelement location="${settings.localRepository}/com/oracle/ojdbc6/${ojdbc6.version}/ojdbc6-${ojdbc6.version}.jar"/>
             <pathelement location="${settings.localRepository}/postgresql/postgresql/${postgresql.version}/postgresql-${postgresql.version}.jar"/>
+            <pathelement location="${settings.localRepository}/mysql/mysql-connector-java/${mysql.version}/mysql-connector-java-${mysql.version}.jar"/>
             <pathelement location="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar"/>
             <pathelement location="${settings.localRepository}/net/sourceforge/jtds/jtds/${jtds.version}/jtds-${jtds.version}.jar"/>
          </classpath>

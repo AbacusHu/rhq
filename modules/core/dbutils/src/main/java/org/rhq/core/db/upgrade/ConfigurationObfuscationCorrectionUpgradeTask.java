@@ -19,12 +19,12 @@
 
 package org.rhq.core.db.upgrade;
 
-import org.rhq.core.db.DatabaseType;
-import org.rhq.core.util.obfuscation.Obfuscator;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+
+import org.rhq.core.db.DatabaseType;
+import org.rhq.core.util.obfuscation.Obfuscator;
 
 /**
  * We had a buggy version of the password obfuscation code borrowed from JBoss AS.
@@ -42,7 +42,7 @@ public class ConfigurationObfuscationCorrectionUpgradeTask implements DatabaseUp
 
     @Override
     public void execute(DatabaseType type, Connection connection) throws SQLException {
-        String sql = "SELECT id, string_value FROM rhq_config_property WHERE dtype = 'obfuscated'";
+        String sql = "SELECT id, string_value FROM RHQ_CONFIG_PROPERTY WHERE dtype = 'obfuscated'";
 
         List<Object[]> results = type.executeSelectSql(connection, sql);
 
@@ -55,7 +55,7 @@ public class ConfigurationObfuscationCorrectionUpgradeTask implements DatabaseUp
             } catch (Exception e) {
                 int id = ((Number) row[0]).intValue();
 
-                type.executeSql(connection, "UPDATE rhq_config_property SET string_value = NULL WHERE id = " + id);
+                type.executeSql(connection, "UPDATE RHQ_CONFIG_PROPERTY SET string_value = NULL WHERE id = " + id);
             }
         }
     }

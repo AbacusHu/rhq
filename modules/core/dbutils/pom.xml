@@ -72,6 +72,13 @@
             <!-- NOTE: The version is defined in the root POM's dependencyManagement section. -->
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>mysql</groupId>
+        	<artifactId>mysql-connector-java</artifactId>
+			<!-- NOTE: Get latest mysql driver. -->
+        	<version>${mysql.version}</version>
+        	<scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -226,6 +233,7 @@
                                             <property name="settings.localRepository" value="${settings.localRepository}" />
                                             <property name="ojdbc6.version" value="${ojdbc6.version}" />
                                             <property name="postgresql.version" value="${postgresql.version}" />
+                                            <property name="mysql.version" value="${mysql.version}" />
                                             <property name="h2.version" value="${h2.version}" />
                                             <property name="jtds.version" value="${jtds.version}" />
                                             <property name="task.classpath.property" refid="maven.test.classpath" />
@@ -258,6 +266,7 @@
                                             <property name="settings.localRepository" value="${settings.localRepository}" />
                                             <property name="ojdbc6.version" value="${ojdbc6.version}" />
                                             <property name="postgresql.version" value="${postgresql.version}" />
+                                            <property name="mysql.version" value="${mysql.version}" />
                                             <property name="h2.version" value="${h2.version}" />
                                             <property name="jtds.version" value="${jtds.version}" />
                                             <property name="task.classpath.property" refid="maven.test.classpath" />
@@ -298,6 +307,7 @@
                                             <property name="settings.localRepository" value="${settings.localRepository}" />
                                             <property name="ojdbc6.version" value="${ojdbc6.version}" />
                                             <property name="postgresql.version" value="${postgresql.version}" />
+                                            <property name="mysql.version" value="${mysql.version}" />
                                             <property name="h2.version" value="${h2.version}" />
                                             <property name="jtds.version" value="${jtds.version}" />
                                             <property name="task.classpath.property" refid="maven.test.classpath" />
@@ -346,6 +356,7 @@
                                             <property name="settings.localRepository" value="${settings.localRepository}" />
                                             <property name="ojdbc6.version" value="${ojdbc6.version}" />
                                             <property name="postgresql.version" value="${postgresql.version}" />
+                                            <property name="mysql.version" value="${mysql.version}" />
                                             <property name="h2.version" value="${h2.version}" />
                                             <property name="jtds.version" value="${jtds.version}" />
                                             <property name="task.classpath.property" refid="maven.test.classpath" />

@@ -54,6 +54,7 @@ import org.quartz.SimpleTrigger;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
@@ -589,6 +590,7 @@ public class MeasurementScheduleManagerBean implements MeasurementScheduleManage
         }
     }
 
+    @SuppressWarnings("unchecked")
     public int updateSchedulesForContext(Subject subject, EntityContext context, int[] measurementDefinitionIds,
         long collectionInterval) {
 
@@ -596,53 +598,70 @@ public class MeasurementScheduleManagerBean implements MeasurementScheduleManage
 
         String measurementScheduleSubQuery = getMeasurementScheduleSubQueryForContext(subject, context,
             measurementDefinitionIds);
+        Query query1 = entityManager.createQuery(measurementScheduleSubQuery);
+        List<Integer> scheduleIds = query1.getResultList();
 
-        String updateQuery = "" //
-            + "UPDATE MeasurementSchedule " //
-            + "   SET interval = :interval, " //
-            + "       enabled = true " //
-            + " WHERE id IN ( " + measurementScheduleSubQuery + " ) ";
+        int affectedRows = 0;
+        if (scheduleIds != null && !scheduleIds.isEmpty()) {
+            String updateQuery = "" //
+                + "UPDATE MeasurementSchedule " //
+                + "   SET interval = :interval, " //
+                + "       enabled = true " //
+                + " WHERE id IN ( :ids ) ";
 
-        Query query = entityManager.createQuery(updateQuery);
-        query.setParameter("interval", collectionInterval);
-        int affectedRows = query.executeUpdate();
+            Query query = entityManager.createQuery(updateQuery);
+            query.setParameter("interval", collectionInterval);
+            query.setParameter("ids", scheduleIds);
+            affectedRows = query.executeUpdate();
+        }
 
         scheduleJobToPushScheduleUpdatesToAgents(context, measurementScheduleSubQuery);
-
         return affectedRows;
     }
 
+    @SuppressWarnings("unchecked")
     public int enableSchedulesForContext(Subject subject, EntityContext context, int[] measurementDefinitionIds) {
         String measurementScheduleSubQuery = getMeasurementScheduleSubQueryForContext(subject, context,
             measurementDefinitionIds);
+        Query query1 = entityManager.createQuery(measurementScheduleSubQuery);
+        List<Integer> scheduleIds = query1.getResultList();
 
-        String updateQuery = "" //
-            + "UPDATE MeasurementSchedule " //
-            + "   SET enabled = true " //
-            + " WHERE id IN ( " + measurementScheduleSubQuery + " ) ";
+        int affectedRows = 0;
+        if (scheduleIds != null && !scheduleIds.isEmpty()) {
+            String updateQuery = "" //
+                + "UPDATE MeasurementSchedule " //
+                + "   SET enabled = true " //
+                + " WHERE id IN ( :ids ) ";
 
-        Query query = entityManager.createQuery(updateQuery);
-        int affectedRows = query.executeUpdate();
+            Query query = entityManager.createQuery(updateQuery);
+            query.setParameter("ids", scheduleIds);
+            affectedRows = query.executeUpdate();
+        }
 
         scheduleJobToPushScheduleUpdatesToAgents(context, measurementScheduleSubQuery);
-
         return affectedRows;
     }
 
+    @SuppressWarnings("unchecked")
     public int disableSchedulesForContext(Subject subject, EntityContext context, int[] measurementDefinitionIds) {
         String measurementScheduleSubQuery = getMeasurementScheduleSubQueryForContext(subject, context,
             measurementDefinitionIds);
+        Query query1 = entityManager.createQuery(measurementScheduleSubQuery);
+        List<Integer> scheduleIds = query1.getResultList();
 
-        String updateQuery = "" //
-            + "UPDATE MeasurementSchedule " //
-            + "   SET enabled = false " //
-            + " WHERE id IN ( " + measurementScheduleSubQuery + " ) ";
+        int affectedRows = 0;
+        if (scheduleIds != null && !scheduleIds.isEmpty()) {
+            String updateQuery = "" //
+                + "UPDATE MeasurementSchedule " //
+                + "   SET enabled = false " //
+                + " WHERE id IN ( :ids ) ";
 
-        Query query = entityManager.createQuery(updateQuery);
-        int affectedRows = query.executeUpdate();
+            Query query = entityManager.createQuery(updateQuery);
+            query.setParameter("ids", scheduleIds);
+            affectedRows = query.executeUpdate();
+        }
 
         scheduleJobToPushScheduleUpdatesToAgents(context, measurementScheduleSubQuery);
-
         return affectedRows;
     }
 
@@ -1052,7 +1071,7 @@ public class MeasurementScheduleManagerBean implements MeasurementScheduleManage
          *     optimizer to use indexes instead of having to look up the rows on the resource table to get the uuid
          *
          * [1] - http://opensource.atlassian.com/projects/hibernate/browse/HHH-1397
-         * [2] - ERROR: invalid reference to FROM-clause entry for table "rhq_resource"
+         * [2] - ERROR: invalid reference to FROM-clause entry for table "RHQ_RESOURCE"
          *
          * Query insertHQL = entityManager.createQuery("" //
          *     + "INSERT INTO MeasurementSchedule( enabled, interval, definition, resource ) \n"
@@ -1075,18 +1094,21 @@ public class MeasurementScheduleManagerBean implements MeasurementScheduleManage
             DatabaseType dbType = DatabaseTypeFactory.getDatabaseType(conn);
 
             String insertQueryString = null;
-            if (dbType instanceof PostgresqlDatabaseType) {
+            if (dbType instanceof MySqlDatabaseType || dbType instanceof SQLServerDatabaseType) {
+                insertQueryString = MeasurementSchedule.NATIVE_QUERY_INSERT_SCHEDULES_AUTOMATIC;
+            } else if (dbType instanceof PostgresqlDatabaseType) {
                 insertQueryString = MeasurementSchedule.NATIVE_QUERY_INSERT_SCHEDULES_POSTGRES;
             } else if (dbType instanceof OracleDatabaseType || dbType instanceof H2DatabaseType) {
                 insertQueryString = MeasurementSchedule.NATIVE_QUERY_INSERT_SCHEDULES_ORACLE;
-            } else if (dbType instanceof SQLServerDatabaseType) {
-                insertQueryString = MeasurementSchedule.NATIVE_QUERY_INSERT_SCHEDULES_SQL_SERVER;
             } else {
                 throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);
             }
 
             insertQueryString = JDBCUtil.transformQueryForMultipleInParameters(insertQueryString, "@@RESOURCES@@",
                 batchIds.length);
+
+            log.info(insertQueryString);
+
             insertStatement = conn.prepareStatement(insertQueryString);
 
             JDBCUtil.bindNTimes(insertStatement, batchIds, 1);

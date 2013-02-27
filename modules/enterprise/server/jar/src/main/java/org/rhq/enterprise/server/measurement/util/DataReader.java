@@ -53,7 +53,7 @@ public class DataReader {
             + "   (SELECT timestamp, avg(value) as av, max(value) as peak, min(value) as low FROM (\n"
             + unions.toString()
             + ") data GROUP BY timestamp) \n"
-            + "   UNION ALL (select ? + (? * i) as timestamp, 0 as av, 0 as peak, 0 as low from RHQ_numbers where i < ?) ) alldata \n"
+            + "   UNION ALL (select ? + (? * i) as timestamp, 0 as av, 0 as peak, 0 as low from RHQ_NUMBERS where i < ?) ) alldata \n"
             + "GROUP BY timestamp";
 
         //System.out.println(sql);
@@ -122,7 +122,7 @@ public class DataReader {
 
     public static String getTableString(String table) {
         return "      (SELECT begin as timestamp, value \n"
-            + "      FROM (select ? + (? * i) as begin, i from RHQ_numbers where i < ?) n,\n" + "         " + table
+            + "      FROM (select ? + (? * i) as begin, i from RHQ_NUMBERS where i < ?) n,\n" + "         " + table
             + " d \n" + "      WHERE time_stamp BETWEEN begin AND (begin + ?)\n" + "         AND d.schedule_id = ?\n"
             + "      ORDER BY begin) \n";
     }

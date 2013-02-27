@@ -29,7 +29,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
-@NamedQueries( {
+@NamedQueries({
     @NamedQuery(name = MeasurementDataTrait.FIND_CURRENT_FOR_RESOURCE_AND_DISPLAY_TYPE, query = "SELECT trait, d.displayName "
         + "FROM MeasurementDataTrait trait JOIN trait.schedule s join s.definition d JOIN s.resource r"
         + " WHERE r.id = :resourceId "
@@ -85,18 +85,18 @@ public class MeasurementDataTrait extends MeasurementData {
      *       E051-08).
      */
     public static final String NATIVE_QUERY_PURGE = "" //
-        + "DELETE FROM rhq_measurement_data_trait " // SQL Server doesn't like aliases, use full table name
+        + "DELETE FROM RHQ_MEASUREMENT_DATA_TRAIT " // SQL Server doesn't like aliases, use full table name
         + "WHERE EXISTS " // rewritten as exists because H2 doesn't support multi-column conditions
-        + "  (SELECT t2.schedule_id, t2.time_stamp " //
-        + "   FROM rhq_measurement_data_trait t2, " //
+        + "  (SELECT * FROM (SELECT t2.schedule_id, t2.time_stamp " //
+        + "   FROM RHQ_MEASUREMENT_DATA_TRAIT t2, " //
         + "     (SELECT max(t4.time_stamp) as mx, t4.schedule_id as schedule_id " //
-        + "      FROM rhq_measurement_data_trait t4 " //
+        + "      FROM RHQ_MEASUREMENT_DATA_TRAIT t4 " //
         + "      WHERE t4.time_stamp < ? " //
         + "      GROUP BY t4.schedule_id) t3 " //
         + "   WHERE t2.schedule_id = t3.schedule_id " //
         + "   AND t2.time_stamp < t3.mx " //
-        + "   AND rhq_measurement_data_trait.time_stamp = t2.time_stamp " // rewrote multi-column conditions as additional
-        + "   AND rhq_measurement_data_trait.schedule_id = t2.schedule_id) "; // correlated restrictions to the delete table
+        + "   ) tmp where RHQ_MEASUREMENT_DATA_TRAIT.time_stamp = tmp.time_stamp " // rewrote multi-column conditions as additional
+        + "   AND RHQ_MEASUREMENT_DATA_TRAIT.schedule_id = tmp.schedule_id) "; // correlated restrictions to the delete table
 
     private static final long serialVersionUID = 1L;
 
@@ -153,7 +153,7 @@ public class MeasurementDataTrait extends MeasurementData {
     @Override
     public String toString() {
         return "MeasurementDataTrait[name=" + getName() + ", value=\"" + this.value + "\", scheduleId="
-                + this.id.scheduleId + ", timestamp=" + this.id.timestamp + "]";
+            + this.id.scheduleId + ", timestamp=" + this.id.timestamp + "]";
     }
 
 }

@@ -63,6 +63,7 @@ import org.rhq.common.jbossas.client.controller.WebJBossASClient.SSLConfiguratio
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.DbUtil;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.setup.DBSetup;
@@ -85,7 +86,7 @@ public class ServerInstallUtil {
     };
 
     public enum SupportedDatabaseType {
-        POSTGRES, ORACLE
+        POSTGRES, MYSQL, ORACLE
     };
 
     private static class SocketBindingInfo {
@@ -148,6 +149,7 @@ public class ServerInstallUtil {
     private static final String RHQ_DS_SECURITY_DOMAIN = "RHQDSSecurityDomain";
     private static final String RHQ_REST_SECURITY_DOMAIN = "RHQRESTSecurityDomain";
     private static final String JDBC_DRIVER_POSTGRES = "postgres";
+    private static final String JDBC_DRIVER_MYSQL = "mysql";
     private static final String JDBC_DRIVER_ORACLE = "oracle";
     private static final String JMS_ALERT_CONDITION_QUEUE = "AlertConditionQueue";
     private static final String JMS_DRIFT_CHANGESET_QUEUE = "DriftChangesetQueue";
@@ -266,6 +268,8 @@ public class ServerInstallUtil {
         }
         if (dbType.toLowerCase().indexOf("postgres") > -1) {
             return SupportedDatabaseType.POSTGRES;
+        } else if (dbType.toLowerCase().indexOf("mysql") > -1) {
+            return SupportedDatabaseType.MYSQL;
         } else if (dbType.toLowerCase().indexOf("oracle") > -1) {
             return SupportedDatabaseType.ORACLE;
         }
@@ -447,69 +451,61 @@ public class ServerInstallUtil {
 
         final ModelNode postgresDriverRequest = client.createNewJdbcDriverRequest(JDBC_DRIVER_POSTGRES,
             "org.rhq.postgres", "org.postgresql.xa.PGXADataSource");
+        final ModelNode mysqlDriverRequest = client.createNewJdbcDriverRequest(JDBC_DRIVER_MYSQL, "org.rhq.mysql",
+            "com.mysql.jdbc.jdbc2.optional.MysqlXADataSource");
         final ModelNode oracleDriverRequest = client.createNewJdbcDriverRequest(JDBC_DRIVER_ORACLE, "org.rhq.oracle",
             "oracle.jdbc.xa.client.OracleXADataSource");
 
-        // if we are to use Oracle, we throw an exception if we can't create the Oracle datasource. We also try to
-        // create the Postgres datasource but because it isn't needed, we don't throw exceptions if that fails, we
-        // just log a warning.
-        // The reverse is true if we are to use Postgres (that is, we ensure Postgres driver is created, but not Oracle).
-        ModelNode results;
         final SupportedDatabaseType supportedDbType = getSupportedDatabaseType(serverProperties);
         switch (supportedDbType) {
         case POSTGRES: {
-            if (client.isJDBCDriver(JDBC_DRIVER_POSTGRES)) {
-                LOG.info("Postgres JDBC driver is already deployed");
-            } else {
-                results = client.execute(postgresDriverRequest);
-                if (!DatasourceJBossASClient.isSuccess(results)) {
-                    throw new FailureException(results, "Failed to create postgres database driver");
-                } else {
-                    LOG.info("Deployed Postgres JDBC driver");
-                }
-            }
-
-            if (client.isJDBCDriver(JDBC_DRIVER_ORACLE)) {
-                LOG.info("Oracle JDBC driver is already deployed");
-            } else {
-                results = client.execute(oracleDriverRequest);
-                if (!DatasourceJBossASClient.isSuccess(results)) {
-                    LOG.warn("Could not create Oracle JDBC Driver - you will not be able to switch to an Oracle DB later: "
-                        + JBossASClient.getFailureDescription(results));
-                } else {
-                    LOG.info("Deployed Oracle JDBC driver for future use");
-                }
-            }
+            createNewJdbcDriver(client, postgresDriverRequest, JDBC_DRIVER_POSTGRES, true);
+            break;
+        }
+        case MYSQL: {
+            createNewJdbcDriver(client, mysqlDriverRequest, JDBC_DRIVER_MYSQL, true);
             break;
         }
         case ORACLE: {
-            if (client.isJDBCDriver(JDBC_DRIVER_ORACLE)) {
-                LOG.info("Oracle JDBC driver is already deployed");
-            } else {
-                results = client.execute(oracleDriverRequest);
-                if (!DatasourceJBossASClient.isSuccess(results)) {
-                    throw new FailureException(results, "Failed to create oracle database driver");
-                } else {
-                    LOG.info("Deployed Oracle JDBC driver");
-                }
-            }
-            if (client.isJDBCDriver(JDBC_DRIVER_POSTGRES)) {
-                LOG.info("Postgres JDBC driver is already deployed");
-            } else {
-                results = client.execute(postgresDriverRequest);
-                if (!DatasourceJBossASClient.isSuccess(results)) {
-                    LOG.warn("Could not create Postgres JDBC Driver - you will not be able to switch to a Postgres DB later: "
-                        + JBossASClient.getFailureDescription(results));
-                } else {
-                    LOG.info("Deployed Postgres JDBC driver for future use");
-                }
-            }
+            createNewJdbcDriver(client, oracleDriverRequest, JDBC_DRIVER_ORACLE, true);
             break;
         }
         default:
             throw new RuntimeException("bad db type"); // this should never happen; should have never gotten to this point with a bad type
         }
 
+        createNewJdbcDriver(client, postgresDriverRequest, JDBC_DRIVER_POSTGRES, false);
+        createNewJdbcDriver(client, mysqlDriverRequest, JDBC_DRIVER_MYSQL, false);
+        createNewJdbcDriver(client, oracleDriverRequest, JDBC_DRIVER_ORACLE, false);
+
+    }
+
+    /**
+     * 
+     * @param client
+     * @param driverRequest
+     * @param jdbcDriverName
+     * @param required, if true, throw exception when create driver fails; if false, log warning message when create driver fails.
+     * @throws Exception
+     */
+    private static void createNewJdbcDriver(DatasourceJBossASClient client, ModelNode driverRequest,
+        String jdbcDriverName, boolean required) throws Exception {
+        if (client.isJDBCDriver(jdbcDriverName)) {
+            LOG.info(jdbcDriverName + " JDBC driver is already deployed");
+        } else {
+            ModelNode results = client.execute(driverRequest);
+            if (!DatasourceJBossASClient.isSuccess(results)) {
+                if (required) {
+                    throw new FailureException(results, "Failed to create " + jdbcDriverName + " database driver");
+                } else {
+                    LOG.warn("Could not create " + jdbcDriverName
+                        + " JDBC Driver - you will not be able to switch to a " + jdbcDriverName + " DB later: "
+                        + JBossASClient.getFailureDescription(results));
+                }
+            } else {
+                LOG.info("Deployed " + jdbcDriverName + " JDBC driver");
+            }
+        }
     }
 
     /**
@@ -526,6 +522,10 @@ public class ServerInstallUtil {
         switch (supportedDbType) {
         case POSTGRES: {
             createNewDatasources_Postgres(mcc);
+            break;
+        }
+        case MYSQL: {
+            createNewDatasources_MySQL(mcc);
             break;
         }
         case ORACLE: {
@@ -585,6 +585,50 @@ public class ServerInstallUtil {
             ModelNode results = client.execute(batch);
             if (!DatasourceJBossASClient.isSuccess(results)) {
                 throw new FailureException(results, "Failed to create Postgres datasources");
+            }
+        }
+    }
+
+    private static void createNewDatasources_MySQL(ModelControllerClient mcc) throws Exception {
+        final HashMap<String, String> props = new HashMap<String, String>(4);
+        final DatasourceJBossASClient client = new DatasourceJBossASClient(mcc);
+
+        ModelNode noTxDsRequest = null;
+        ModelNode xaDsRequest = null;
+
+        if (!client.isDatasource(RHQ_DATASOURCE_NAME_NOTX)) {
+            props.put("char.encoding", "UTF-8");
+
+            noTxDsRequest = client.createNewDatasourceRequest(RHQ_DATASOURCE_NAME_NOTX, 30000,
+                "${rhq.server.database.connection-url:jdbc:mysql://127.0.0.1:3306/rhq}", JDBC_DRIVER_MYSQL,
+                "org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter", 15, false, 2, 5, 75,
+                RHQ_DS_SECURITY_DOMAIN, "-unused-stale-conn-checker-", "TRANSACTION_READ_COMMITTED",
+                "org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker", props);
+            noTxDsRequest.get("steps").get(0).remove("stale-connection-checker-class-name"); // we don't have one of these for MySQL.
+        } else {
+            LOG.info("MySQL datasource [" + RHQ_DATASOURCE_NAME_NOTX + "] already exists");
+        }
+
+        if (!client.isXADatasource(RHQ_DATASOURCE_NAME_XA)) {
+            props.clear();
+            props.put("ServerName", "${rhq.server.database.server-name:127.0.0.1}");
+            props.put("PortNumber", "${rhq.server.database.port:3306}");
+            props.put("DatabaseName", "${rhq.server.database.db-name:rhq}");
+
+            xaDsRequest = client.createNewXADatasourceRequest(RHQ_DATASOURCE_NAME_XA, 30000, JDBC_DRIVER_MYSQL,
+                "org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter", 15, 5, 50, (Boolean) null,
+                (Boolean) null, 75, (String) null, RHQ_DS_SECURITY_DOMAIN, (String) null, "TRANSACTION_READ_COMMITTED",
+                "org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker", props);
+
+        } else {
+            LOG.info("MySQL XA datasource [" + RHQ_DATASOURCE_NAME_XA + "] already exists");
+        }
+
+        if (noTxDsRequest != null || xaDsRequest != null) {
+            ModelNode batch = DatasourceJBossASClient.createBatchRequest(noTxDsRequest, xaDsRequest);
+            ModelNode results = client.execute(batch);
+            if (!DatasourceJBossASClient.isSuccess(results)) {
+                throw new FailureException(results, "Failed to create MySQL datasources");
             }
         }
     }
@@ -698,10 +742,10 @@ public class ServerInstallUtil {
             conn = getDatabaseConnection(connectionUrl, username, password);
             db = DatabaseTypeFactory.getDatabaseType(conn);
 
-            if (db.checkTableExists(conn, "rhq_server")) {
+            if (db.checkTableExists(conn, "RHQ_SERVER")) {
 
                 stm = conn.createStatement();
-                rs = stm.executeQuery("SELECT name FROM rhq_server ORDER BY name asc");
+                rs = stm.executeQuery("SELECT name FROM RHQ_SERVER ORDER BY name asc");
 
                 while (rs.next()) {
                     result.add(rs.getString(1));
@@ -765,7 +809,7 @@ public class ServerInstallUtil {
         try {
             stm = conn.prepareStatement("" //
                 + "SELECT s.address, s.port, s.secure_port " //
-                + "  FROM rhq_server s " //
+                + "  FROM RHQ_SERVER s " //
                 + " WHERE s.name = ?");
             stm.setString(1, serverName.trim());
 
@@ -835,6 +879,11 @@ public class ServerInstallUtil {
                     || version.startsWith("8.1")) {
                     throw new Exception("Unsupported PostgreSQL [" + db + "]");
                 }
+            } else if (DatabaseTypeFactory.isMySql(db)) {
+                if (!version.startsWith("5")) {
+                    throw new Exception("Unsupported MySQL [" + db + "]");
+                }
+
             } else if (DatabaseTypeFactory.isOracle(db)) {
                 if (version.startsWith("8") || version.startsWith("9")) {
                     throw new Exception("Unsupported Oracle [" + db + "]");
@@ -961,7 +1010,7 @@ public class ServerInstallUtil {
         }
 
         try {
-            stm = conn.prepareStatement("UPDATE rhq_server SET address=?, port=?, secure_port=? WHERE name=?");
+            stm = conn.prepareStatement("UPDATE RHQ_SERVER SET address=?, port=?, secure_port=? WHERE name=?");
             stm.setString(1, serverDetails.getEndpointAddress());
             stm.setInt(2, serverDetails.getEndpointPort());
             stm.setInt(3, serverDetails.getEndpointSecurePort());
@@ -971,11 +1020,12 @@ public class ServerInstallUtil {
 
                 // set all new servers to operation_mode=INSTALLED
                 int i = 1;
-                if (db instanceof PostgresqlDatabaseType || db instanceof OracleDatabaseType) {
-                    stm = conn.prepareStatement("INSERT INTO rhq_server " //
+                if (db instanceof PostgresqlDatabaseType || db instanceof MySqlDatabaseType
+                    || db instanceof OracleDatabaseType) {
+                    stm = conn.prepareStatement("INSERT INTO RHQ_SERVER " //
                         + " ( id, name, address, port, secure_port, ctime, mtime, operation_mode, compute_power ) " //
                         + "VALUES ( ?, ?, ?, ?, ?, ?, ?, 'INSTALLED', 1 )");
-                    stm.setInt(i++, db.getNextSequenceValue(conn, "rhq_server", "id"));
+                    stm.setInt(i++, db.getNextSequenceValue(conn, "RHQ_SERVER", "id"));
                 } else {
                     throw new IllegalArgumentException("Unknown database type, can't continue: " + db);
                 }

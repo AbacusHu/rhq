@@ -36,7 +36,7 @@ public class ContentSourceConfigurationObfuscationUpgradeTask extends AbstractCo
         Map<Integer, Integer> ret = new HashMap<Integer, Integer>();
         String sql =
             "SELECT cs.configuration_id, ct.source_config_def_id FROM"
-                + " rhq_content_source cs, rhq_content_source_type ct WHERE" + " cs.content_source_type_id = ct.id";
+            + " RHQ_CONTENT_SOURCE cs, RHQ_CONTENT_SOURCE_TYPE ct WHERE" + " cs.content_source_type_id = ct.id";
 
         List<Object[]> results = databaseType.executeSelectSql(connection, sql);
 

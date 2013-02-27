@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.rhq.core.db.builders.CreateSequenceExprBuilder;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -36,6 +35,7 @@ import org.xml.sax.SAXException;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.TypeMap;
+import org.rhq.core.db.builders.CreateSequenceExprBuilder;
 
 class Column {
     protected static final int DEFAULT_NONE = 0;
@@ -235,6 +235,23 @@ class Column {
             strCmd = strCmd + this.getSizeCommand(cmds);
         }
 
+        strCmd = compositeDefaultAndRequired(cmds, strCmd);
+
+        if (this.isPrimaryKey()) {
+            strCmd += " PRIMARY KEY";
+        }
+
+        if (this.getReferences() != null) {
+            strCmd += " REFERENCES " + this.getReferences();
+            if (this.getOnDelete() != null) {
+                strCmd += " ON DELETE " + this.getOnDelete();
+            }
+        }
+
+        return strCmd;
+    }
+
+    protected String compositeDefaultAndRequired(List cmds, String strCmd) {
         if (this.hasDefault()) {
             String strDefault = this.getDefaultCommand(cmds);
 
@@ -250,18 +267,6 @@ class Column {
         if (this.isRequired()) {
             strCmd += " NOT NULL";
         }
-
-        if (this.isPrimaryKey()) {
-            strCmd += " PRIMARY KEY";
-        }
-
-        if (this.getReferences() != null) {
-            strCmd += " REFERENCES " + this.getReferences();
-            if (this.getOnDelete() != null) {
-                strCmd += " ON DELETE " + this.getOnDelete();
-            }
-        }
-
         return strCmd;
     }
 
@@ -287,8 +292,10 @@ class Column {
                         col = new H2Column(node, table);
                     } else if (DatabaseTypeFactory.isSQLServer(dbtype)) {
                         col = new SQLServerColumn(node, table);
+                    } else if (DatabaseTypeFactory.isMySql(dbtype)) {
+                        col = new MySqlColumn(node, table);
                     } else {
-                        col = new Column(node, table);
+                        throw new Error("Database is not supported " + dbtype + ". It should never happen here.");
                     }
 
                     colResult.add(col);
@@ -316,6 +323,7 @@ class Column {
         return Column.DATABASE_TYPE;
     }
 
+    //TODO NEED check double check it is used or not.  This method should never be invoked. It seems it is welled handled.
     protected String getDefaultCommand(List cmds) {
         String strCmd = "DEFAULT ";
 
@@ -358,6 +366,9 @@ class Column {
         // Do nothing. Subclasses may need to add commands to the collection.
     }
 
+    /**
+     * @return true, when has default column which is current time, auto increment, or sequence 
+     */
     protected boolean hasDefault() {
         return (this.m_iDefault != Column.DEFAULT_NONE);
     }
@@ -373,8 +384,15 @@ class Column {
         terms.put(CreateSequenceExprBuilder.KEY_SEQ_INCREMENT, getIncrementSequence());
         // fall back to factory defaults if left unspecified...
         terms.put(CreateSequenceExprBuilder.KEY_SEQ_CACHE_SIZE,
-                CreateSequenceExprBuilder.getSafeSequenceCacheSize(builder, getSequenceCacheSize()));
+            CreateSequenceExprBuilder.getSafeSequenceCacheSize(builder, getSequenceCacheSize()));
         return builder.build(terms);
 
+    }
+
+    final protected String getSequenceName() {
+        String tableName = this.m_strTableName.toUpperCase();
+        String columnName = this.getName().toUpperCase();
+        String sequenceName = tableName + '_' + columnName + "_SEQ";
+        return sequenceName;
     }
 }

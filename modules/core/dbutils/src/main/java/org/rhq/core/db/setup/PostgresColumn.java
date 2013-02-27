@@ -35,7 +35,7 @@ class PostgresColumn extends Column {
             return "";
         }
 
-        String strSeqName = this.m_strTableName.toUpperCase() + '_' + this.getName().toUpperCase() + "_SEQ";
+        String strSeqName = getSequenceName();
 
         return "DEFAULT nextval('" + strSeqName + "')";
     }
@@ -49,7 +49,7 @@ class PostgresColumn extends Column {
             switch (getDefault()) {
             case Column.DEFAULT_AUTO_INCREMENT:
             case Column.DEFAULT_SEQUENCE_ONLY: {
-                String strSeqName = this.m_strTableName.toUpperCase() + '_' + this.getName().toUpperCase() + "_SEQ";
+                String strSeqName = getSequenceName();
                 cmds.add(0, buildSequenceSqlExpr(CreateSequenceExprBuilder.getBuilder(PostgresqlDatabaseType.VENDOR_NAME),
                         strSeqName));
                 break;
@@ -63,7 +63,7 @@ class PostgresColumn extends Column {
             switch (this.getDefault()) {
             case Column.DEFAULT_AUTO_INCREMENT:
             case Column.DEFAULT_SEQUENCE_ONLY: {
-                String strSeqName = this.m_strTableName.toUpperCase() + '_' + this.getName().toUpperCase() + "_SEQ";
+                String strSeqName = getSequenceName();
                 cmds.add("DROP SEQUENCE " + strSeqName);
                 break;
             }

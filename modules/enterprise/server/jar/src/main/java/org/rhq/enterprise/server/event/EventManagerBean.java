@@ -45,6 +45,7 @@ import org.jboss.ejb3.annotation.TransactionTimeout;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
@@ -81,19 +82,19 @@ public class EventManagerBean implements EventManagerLocal, EventManagerRemote {
 
     // NOTE: We need to do the fancy subselects to figure out the event def id, because the PC does not know the id's of
     //       metadata objects such as EventDefinition (ips, 02/20/08).
-    private static final String EVENT_SOURCE_INSERT_STMT = "INSERT INTO RHQ_Event_Source (id, event_def_id, resource_id, location) "
-        + "SELECT %s, (SELECT id FROM RHQ_Event_Def WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_Resource_Type WHERE name = ? AND plugin = ?)), ?, ? FROM RHQ_Numbers WHERE i = 42 "
-        + "AND NOT EXISTS (SELECT * FROM RHQ_Event_Source WHERE event_def_id = (SELECT id FROM RHQ_Event_Def WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_Resource_Type WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?)";
+    private static final String EVENT_SOURCE_INSERT_STMT = "INSERT INTO RHQ_EVENT_SOURCE (id, event_def_id, resource_id, location) "
+        + "SELECT %s, (SELECT id FROM RHQ_EVENT_DEF WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_RESOURCE_TYPE WHERE name = ? AND plugin = ?)), ?, ? FROM RHQ_NUMBERS WHERE i = 42 "
+        + "AND NOT EXISTS (SELECT * FROM RHQ_EVENT_SOURCE WHERE event_def_id = (SELECT id FROM RHQ_EVENT_DEF WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_RESOURCE_TYPE WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?)";
 
-    private static final String EVENT_SOURCE_INSERT_STMT_AUTOINC = "INSERT INTO RHQ_Event_Source (event_def_id, resource_id, location) "
-        + "SELECT (SELECT id FROM RHQ_Event_Def WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_Resource_Type WHERE name = ? AND plugin = ?)), ?, ? FROM RHQ_Numbers WHERE i = 42 "
-        + "AND NOT EXISTS (SELECT * FROM RHQ_Event_Source WHERE event_def_id = (SELECT id FROM RHQ_Event_Def WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_Resource_Type WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?)";
+    private static final String EVENT_SOURCE_INSERT_STMT_AUTOINC = "INSERT INTO RHQ_EVENT_SOURCE (event_def_id, resource_id, location) "
+        + "SELECT (SELECT id FROM RHQ_EVENT_DEF WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_RESOURCE_TYPE WHERE name = ? AND plugin = ?)), ?, ? FROM RHQ_NUMBERS WHERE i = 42 "
+        + "AND NOT EXISTS (SELECT * FROM RHQ_EVENT_SOURCE WHERE event_def_id = (SELECT id FROM RHQ_EVENT_DEF WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_RESOURCE_TYPE WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?)";
 
-    private static final String EVENT_INSERT_STMT = "INSERT INTO RHQ_Event (id, event_source_id, timestamp, severity, detail) "
-        + "VALUES (%s, (SELECT id FROM RHQ_Event_Source WHERE event_def_id = (SELECT id FROM RHQ_Event_Def WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_Resource_Type WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?), ?, ?, ?)";
+    private static final String EVENT_INSERT_STMT = "INSERT INTO RHQ_EVENT (id, event_source_id, timestamp, severity, detail) "
+        + "VALUES (%s, (SELECT id FROM RHQ_EVENT_SOURCE WHERE event_def_id = (SELECT id FROM RHQ_EVENT_DEF WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_RESOURCE_TYPE WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?), ?, ?, ?)";
 
-    private static final String EVENT_INSERT_STMT_AUTOINC = "INSERT INTO RHQ_Event (event_source_id, timestamp, severity, detail) "
-        + "VALUES ((SELECT id FROM RHQ_Event_Source WHERE event_def_id = (SELECT id FROM RHQ_Event_Def WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_Resource_Type WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?), ?, ?, ?)";
+    private static final String EVENT_INSERT_STMT_AUTOINC = "INSERT INTO RHQ_EVENT (event_source_id, timestamp, severity, detail) "
+        + "VALUES ((SELECT id FROM RHQ_EVENT_SOURCE WHERE event_def_id = (SELECT id FROM RHQ_EVENT_DEF WHERE name = ? AND resource_type_id = (SELECT id FROM RHQ_RESOURCE_TYPE WHERE name = ? AND plugin = ?)) AND resource_id = ? AND location = ?), ?, ?, ?)";
 
     @PersistenceContext(unitName = RHQConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
@@ -125,7 +126,7 @@ public class EventManagerBean implements EventManagerLocal, EventManagerRemote {
                 || dbType instanceof H2DatabaseType) {
                 String nextvalSql = JDBCUtil.getNextValSql(conn, EventSource.TABLE_NAME);
                 statementSql = String.format(EVENT_SOURCE_INSERT_STMT, nextvalSql);
-            } else if (dbType instanceof SQLServerDatabaseType) {
+            } else if (dbType instanceof MySqlDatabaseType || dbType instanceof SQLServerDatabaseType) {
                 statementSql = EVENT_SOURCE_INSERT_STMT_AUTOINC;
             } else {
                 throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);
@@ -155,7 +156,7 @@ public class EventManagerBean implements EventManagerLocal, EventManagerRemote {
             }
 
             if (dbType instanceof PostgresqlDatabaseType || dbType instanceof OracleDatabaseType
-                || dbType instanceof H2DatabaseType) {
+                || dbType instanceof H2DatabaseType || dbType instanceof MySqlDatabaseType) {
                 String nextvalSql = JDBCUtil.getNextValSql(conn, Event.TABLE_NAME);
                 statementSql = String.format(EVENT_INSERT_STMT, nextvalSql);
             } else if (dbType instanceof SQLServerDatabaseType) {
@@ -182,8 +183,8 @@ public class EventManagerBean implements EventManagerLocal, EventManagerRemote {
                         ps.addBatch();
                     }
 
-                    notifyAlertConditionCacheManager("addEventData", eventSource, eventData.toArray(new Event[eventData
-                        .size()]));
+                    notifyAlertConditionCacheManager("addEventData", eventSource,
+                        eventData.toArray(new Event[eventData.size()]));
                 }
                 ps.executeBatch();
             } finally {

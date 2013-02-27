@@ -107,17 +107,17 @@ import org.rhq.enterprise.server.util.CriteriaQueryRunner;
 @javax.annotation.Resource(name = "RHQ_DS", mappedName = RHQConstants.DATASOURCE_JNDI_NAME)
 public class MeasurementDataManagerBean implements MeasurementDataManagerLocal, MeasurementDataManagerRemote {
     // time_stamp, schedule_id, value, schedule_id, schedule_id, value, value, value, value
-    private static final String TRAIT_INSERT_STATEMENT = "INSERT INTO RHQ_measurement_data_trait \n"
-        + "  SELECT ?, ?, ?  FROM RHQ_numbers n \n"
+    private static final String TRAIT_INSERT_STATEMENT = "INSERT INTO RHQ_MEASUREMENT_DATA_TRAIT \n"
+        + "  SELECT ?, ?, ?  FROM RHQ_NUMBERS n \n"
         + "  WHERE n.i = 42 \n"
         + "    AND NOT EXISTS \n"
         + "      ( \n"
         + "      SELECT 1 \n"
         + "      FROM (SELECT dt2.value as v \n"
-        + "            FROM RHQ_measurement_data_trait dt2 \n"
+        + "            FROM RHQ_MEASUREMENT_DATA_TRAIT dt2 \n"
         + "      WHERE dt2.schedule_id = ? \n"
         + "        AND dt2.time_stamp = \n"
-        + "          (SELECT max(dt3.time_stamp) FROM RHQ_measurement_data_trait dt3 WHERE dt3.schedule_id = ?))  lastValue \n"
+        + "          (SELECT max(dt3.time_stamp) FROM RHQ_MEASUREMENT_DATA_TRAIT dt3 WHERE dt3.schedule_id = ?))  lastValue \n"
         + "      WHERE NOT ((? is null AND lastValue.v is not null) \n"
         + "        OR (? is not null AND lastValue.v is null) \n"
         + "              OR (? is not null AND lastValue.v is not null AND ? <> lastValue.v)) \n" + "      )";
@@ -160,6 +160,7 @@ public class MeasurementDataManagerBean implements MeasurementDataManagerLocal, 
         try {
             conn = rhqDs.getConnection();
             stmt = conn.prepareStatement(MeasurementDataTrait.NATIVE_QUERY_PURGE);
+            log.info("TODO NEED DELETE:" + MeasurementDataTrait.NATIVE_QUERY_PURGE);
             stmt.setLong(1, oldest);
             long startTime = System.currentTimeMillis();
             int deleted = stmt.executeUpdate();

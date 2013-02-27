@@ -38,7 +38,7 @@ public class OperationScheduleIdSetterUpgradeTask implements DatabaseUpgradeTask
 
     @Override
     public void execute(DatabaseType databaseType, Connection connection) throws SQLException {
-        String selectSQL = "SELECT job_name FROM rhq_operation_schedule";
+        String selectSQL = "SELECT job_name FROM RHQ_OPERATION_SCHEDULE";
         System.out.println("Executing: " + selectSQL);
         List<Object[]> results = databaseType.executeSelectSql(connection, selectSQL);
         Map<Long, String> sortedJobNames = new TreeMap<Long, String>();
@@ -50,7 +50,7 @@ public class OperationScheduleIdSetterUpgradeTask implements DatabaseUpgradeTask
         }
         int id = 10001;
         for (String jobName : sortedJobNames.values()) {
-            String updateSQL = "UPDATE rhq_operation_schedule SET id = " + (id++) + " WHERE job_name = '" + jobName
+            String updateSQL = "UPDATE RHQ_OPERATION_SCHEDULE SET id = " + (id++) + " WHERE job_name = '" + jobName
                 + "'";
             System.out.println("Executing: " + updateSQL);
             databaseType.executeSql(connection, updateSQL);

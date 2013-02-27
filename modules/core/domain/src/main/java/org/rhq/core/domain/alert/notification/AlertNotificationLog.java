@@ -83,9 +83,8 @@ import org.rhq.core.domain.alert.Alert;
         + "                            WHERE rg.id IN ( :groupIds ) ))"),
     @NamedQuery(name = AlertNotificationLog.QUERY_DELETE_BY_ALERT_CTIME, //
     query = "DELETE AlertNotificationLog anl " //
-        + "   WHERE anl.id IN ( SELECT an.id " //
+        + "   WHERE anl.alert.id IN ( SELECT a.id " //
         + "                       FROM Alert a " //
-        + "                       JOIN a.alertNotificationLogs an " //
         + "                      WHERE a.ctime BETWEEN :begin AND :end )") })
 @SequenceGenerator(allocationSize = org.rhq.core.domain.util.Constants.ALLOCATION_SIZE, name = "RHQ_ALERT_NOTIF_LOG_ID_SEQ", sequenceName = "RHQ_ALERT_NOTIF_LOG_ID_SEQ")
 @Table(name = "RHQ_ALERT_NOTIF_LOG")

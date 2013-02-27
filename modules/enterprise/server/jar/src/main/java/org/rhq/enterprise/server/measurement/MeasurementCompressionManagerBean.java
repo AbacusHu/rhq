@@ -245,7 +245,7 @@ public class MeasurementCompressionManagerBean implements MeasurementCompression
             if (MeasurementDataManagerUtility.isRawTable(fromTable)) {
                 minMax = "AVG(value), MIN(value), MAX(value) ";
             } else {
-                minMax = "AVG(value), MIN(minvalue), MAX(maxvalue) ";
+                minMax = "AVG(value), MIN(min_value), MAX(max_value) ";
             }
 
             // TODO GH: Why does this do each schedule separately?

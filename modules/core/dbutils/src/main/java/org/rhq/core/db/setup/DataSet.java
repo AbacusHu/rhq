@@ -119,7 +119,15 @@ abstract class DataSet {
             }
 
             String strValue = getData(i).getValue();
+
             if (strValue != null) {
+                // In MySQL, boolean value cannot contain in quotation marks.
+                if (DatabaseTypeFactory.isMySql(m_parent.getDatabaseType())
+                    && (strValue.equalsIgnoreCase("TRUE") || strValue.equalsIgnoreCase("FALSE"))) {
+                    strCmd.append(strValue);
+                    continue;
+                }
+
                 // We need to replace the value 'TRUE' with '1' if this is
                 // Oracle. It's a hack to have this code in this class until I
                 // do some restructuring of the code
@@ -241,8 +249,7 @@ abstract class DataSet {
             Data data = getData(i);
             if (data == null) {
                 System.err.println("Data at column index for table " + m_strTableName + " is null");
-            }
-            else if (data.isKeyColumn()) {
+            } else if (data.isKeyColumn()) {
                 return true;
             }
         }
@@ -257,8 +264,7 @@ abstract class DataSet {
             Data data = getData(i);
             if (data == null) {
                 System.err.println("Data at column index for table " + m_strTableName + " is null");
-            }
-            else if (data.isKeyColumn()) {
+            } else if (data.isKeyColumn()) {
                 keys.add(data);
             }
         }

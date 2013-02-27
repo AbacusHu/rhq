@@ -46,9 +46,9 @@ public class MeasurementDataNumeric1H extends MeasurementData implements Seriali
     @Column(precision = 24, scale = 3)
     private Double value;
 
-    @Column(name = "minvalue")
+    @Column(name = "min_value")
     private Double min;
-    @Column(name = "maxvalue")
+    @Column(name = "max_value")
     private Double max;
 
     protected MeasurementDataNumeric1H() {

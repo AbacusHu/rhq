@@ -352,7 +352,7 @@ public class InstallerServiceImpl implements InstallerService {
         try {
             final String url = serverProperties.get(ServerProperties.PROP_DATABASE_CONNECTION_URL);
             Pattern pattern = null;
-            if (supportedDbType == SupportedDatabaseType.POSTGRES) {
+            if (supportedDbType == SupportedDatabaseType.POSTGRES || supportedDbType == SupportedDatabaseType.MYSQL) {
                 pattern = Pattern.compile(".*://(.*):([0123456789]+)/(.*)"); // jdbc:postgresql://host.name:5432/rhq
             } else if (supportedDbType == SupportedDatabaseType.ORACLE) {
                 // if we ever find that we'll need these props set, uncomment below and it should all work
@@ -390,6 +390,9 @@ public class InstallerServiceImpl implements InstallerService {
             if (supportedDbType == SupportedDatabaseType.POSTGRES) {
                 dialect = "org.hibernate.dialect.PostgreSQLDialect";
                 quartzDriverDelegateClass = "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate";
+            } else if (supportedDbType == SupportedDatabaseType.MYSQL) {
+                dialect = "org.hibernate.dialect.MySQL5Dialect";
+                quartzDriverDelegateClass = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
             } else if (supportedDbType == SupportedDatabaseType.ORACLE) {
                 dialect = "org.hibernate.dialect.Oracle10gDialect";
                 quartzDriverDelegateClass = "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate";

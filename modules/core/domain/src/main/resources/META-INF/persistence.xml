@@ -14,12 +14,17 @@
          <property name="hibernate.format_sql" value="true" />
          <property name="hibernate.use_sql_comments" value="true" /> 
          -->
+         
+         <!-- Disable new generate mappings in Hibernate 4 to support MySQL. Refer to https://docs.jboss.org/author/display/AS71/JPA+Reference+Guide -->
+         <property name="hibernate.id.new_generator_mappings" value="false" />
+         
          <!--<property name="hibernate.hbm2ddl.auto" value="create-drop" />-->
          <property name="hibernate.jdbc.batch_size" value="30"/>
          <property name="hibernate.cache.use_second_level_cache" value="false"/>
 
          <!--<property name="com.intellij.javaee.persistence.datasource" value="rhq-oracle" />-->
-         <property name="com.intellij.javaee.persistence.datasource" value="rhq-postgres" />
+         <!--<property name="com.intellij.javaee.persistence.datasource" value="rhq-postgres" /> -->
+         <property name="com.intellij.javaee.persistence.datasource" value="rhq-mysql" />
       </properties>
    </persistence-unit>
 

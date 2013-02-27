@@ -136,15 +136,15 @@ public class DbSetupUtility {
     }
 
     private static void dropRhqCalltimeDataKeyTable(Database database) throws LiquibaseException {
-        // For some reason Liquibase always fails to drop the rhq_calltime_data_key table, logging the following:
+        // For some reason Liquibase always fails to drop the RHQ_CALLTIME_DATA_KEY table, logging the following:
         //
         //    WARNING 2/22/12 4:56 PM:liquibase: Foreign key rhq_calltime_data_value_key_id_fkey references table
-        //                                       rhq_calltime_data_key, which is in a different schema. Retaining FK in
+        //                                       RHQ_CALLTIME_DATA_KEY, which is in a different schema. Retaining FK in
         //                                       diff, but table will not be diffed.
         //
         // The workaround is to manually drop the table via JDBC once Liquibase has cleared out everything else.
 
-        System.out.println("Dropping rhq_calltime_data_key table...");
+        System.out.println("Dropping RHQ_CALLTIME_DATA_KEY table...");
         // NOTE: The below attempt to delete the table individually via Liquibase doesn't even work...
         /*SqlVisitor sqlVisitor = new AbstractSqlVisitor() {
             public String modifySql(String sql, Database database) {
@@ -157,11 +157,11 @@ public class DbSetupUtility {
             }
         };
 
-        database.execute(new SqlStatement[]{new DropTableStatement(null, "rhq_calltime_data_key", false)},
+        database.execute(new SqlStatement[]{new DropTableStatement(null, "RHQ_CALLTIME_DATA_KEY", false)},
             Arrays.asList(sqlVisitor));*/
 
         try {
-            PreparedStatement statement = AbstractEJB3Test.getConnection().prepareStatement("DROP TABLE rhq_calltime_data_key");
+            PreparedStatement statement = AbstractEJB3Test.getConnection().prepareStatement("DROP TABLE RHQ_CALLTIME_DATA_KEY");
             statement.execute();
         } catch (SQLException e) {
             // ignore

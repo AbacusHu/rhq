@@ -141,6 +141,10 @@
                     <artifactId>postgresql</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>rss4j</groupId>
                     <artifactId>rss4j</artifactId>
                 </exclusion>

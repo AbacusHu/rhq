@@ -189,10 +189,10 @@ public class MeasurementSchedule implements Serializable {
         + "                                   WHERE ms.RESOURCE_ID = res.ID " //
         + "                                     AND ms.DEFINITION = def.ID ) ) ";
 
-    public static final String NATIVE_QUERY_INSERT_SCHEDULES_SQL_SERVER = "" //
+    public static final String NATIVE_QUERY_INSERT_SCHEDULES_AUTOMATIC = "" //
         + "INSERT INTO RHQ_MEASUREMENT_SCHED ( ENABLED, COLL_INTERVAL, DEFINITION, RESOURCE_ID ) " //
         + "     SELECT def.DEFAULT_ON AS defaultOn, " //
-        + "            def.DEFAULT_INTERVAL AS interval, " //
+        + "            def.DEFAULT_INTERVAL AS interval_value, " //
         + "            def.ID AS definitionId, " //
         + "            res.ID AS resourceId " //
         + "       FROM RHQ_RESOURCE res, RHQ_RESOURCE_TYPE type, RHQ_MEASUREMENT_DEF def " //

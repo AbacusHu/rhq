@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
 import org.rhq.core.db.SQLServerDatabaseType;
@@ -96,7 +97,7 @@ public class ResourceAvailabilityManagerBean implements ResourceAvailabilityMana
         PreparedStatement ps = null;
         try {
             String query;
-            if (dbType instanceof SQLServerDatabaseType) {
+            if (dbType instanceof SQLServerDatabaseType || dbType instanceof MySqlDatabaseType) {
                 query = "" //
                     + "INSERT INTO RHQ_RESOURCE_AVAIL ( RESOURCE_ID, AVAILABILITY_TYPE ) " //
                     + "     SELECT res.ID, 2 " // set to UNKNOWN=2

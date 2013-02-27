@@ -121,7 +121,7 @@ public class AvailabilityInsertPurgeTest extends AbstractEJB3PerformanceTest {
         if (l != 0) {
             throw new IllegalStateException("Availabilities table is not empty");
         }
-        systemManager.vacuum(overlord, new String[] { "rhq_availability" });
+        systemManager.vacuum(overlord, new String[] { "RHQ_AVAILABILITY" });
 
         for (int MULTI : ROUNDS) {
             String round = String.format(ROUND__FORMAT, MULTI);
@@ -149,7 +149,7 @@ public class AvailabilityInsertPurgeTest extends AbstractEJB3PerformanceTest {
             endTiming(String.format(PURGE__FORMAT, MULTI));
             // Vacuum the db
             overlord = LookupUtil.getSubjectManager().getOverlord();
-            systemManager.vacuum(overlord, new String[] { "rhq_availability" });
+            systemManager.vacuum(overlord, new String[] { "RHQ_AVAILABILITY" });
 
         }
 
@@ -215,7 +215,7 @@ public class AvailabilityInsertPurgeTest extends AbstractEJB3PerformanceTest {
             endTiming(String.format(PURGE__FORMAT, MULTI));
             // Vacuum the db
             overlord = LookupUtil.getSubjectManager().getOverlord();
-            systemManager.vacuum(overlord, new String[] { "rhq_availability" });
+            systemManager.vacuum(overlord, new String[] { "RHQ_AVAILABILITY" });
 
         }
 
@@ -280,7 +280,7 @@ public class AvailabilityInsertPurgeTest extends AbstractEJB3PerformanceTest {
             endTiming(String.format(PURGE__FORMAT, MULTI));
             // Vacuum the db
             overlord = LookupUtil.getSubjectManager().getOverlord();
-            systemManager.vacuum(overlord, new String[] { "rhq_availability" });
+            systemManager.vacuum(overlord, new String[] { "RHQ_AVAILABILITY" });
 
         }
 
@@ -328,7 +328,7 @@ public class AvailabilityInsertPurgeTest extends AbstractEJB3PerformanceTest {
         if (l != 0) {
             throw new IllegalStateException("Availabilities table is not empty");
         }
-        systemManager.vacuum(overlord, new String[] { "rhq_availability" });
+        systemManager.vacuum(overlord, new String[] { "RHQ_AVAILABILITY" });
 
         // Set up an alert definition on one resource
         AlertCondition goingDown = new AlertCondition();
@@ -370,7 +370,7 @@ public class AvailabilityInsertPurgeTest extends AbstractEJB3PerformanceTest {
             endTiming(String.format(PURGE__FORMAT, MULTI));
             // Vacuum the db
             overlord = LookupUtil.getSubjectManager().getOverlord();
-            systemManager.vacuum(overlord, new String[] { "rhq_availability" });
+            systemManager.vacuum(overlord, new String[] { "RHQ_AVAILABILITY" });
 
         }
 

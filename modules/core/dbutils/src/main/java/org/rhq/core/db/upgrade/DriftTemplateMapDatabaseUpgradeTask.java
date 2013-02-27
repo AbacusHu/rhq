@@ -29,8 +29,8 @@ import org.rhq.core.db.DbUtilsI18NFactory;
 import org.rhq.core.db.DbUtilsI18NResourceKeys;
 
 /**
- * Database upgrade task 2.115 adds the rhq_drift_def_template table.  The table is initially populated here
- * by using data in the to-be-removed rhq_drift_template_map table. 
+ * Database upgrade task 2.115 adds the RHQ_DRIFT_DEF_TEMPLATE table.  The table is initially populated here
+ * by using data in the to-be-removed RHQ_DRIFT_TEMPLATE_MAP table. 
  *
  * @author Jay Shaughnessy
  */
@@ -82,7 +82,7 @@ public class DriftTemplateMapDatabaseUpgradeTask implements DatabaseUpgradeTask 
 
         databaseType.executeSql(connection, sql);
 
-        // third, for each initial snapshot, create the newly required rhq_drift_set and map the drift to it
+        // third, for each initial snapshot, create the newly required RHQ_DRIFT_SET and map the drift to it
         sql = "select cs.ID from RHQ_DRIFT_CHANGE_SET cs where cs.VERSION = 0";
         LOG.debug(DbUtilsI18NResourceKeys.EXECUTING_SQL, sql);
 

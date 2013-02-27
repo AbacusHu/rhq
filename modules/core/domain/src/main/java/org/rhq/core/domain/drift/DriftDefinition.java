@@ -91,7 +91,7 @@ public class DriftDefinition implements Serializable {
     private DriftHandlingMode driftHandlingMode;
 
     // unit = millis
-    @Column(name = "INTERVAL", nullable = false)
+    @Column(name = "INTERVAL_VALUE", nullable = false)
     private long interval;
 
     @JoinColumn(name = "CONFIG_ID", referencedColumnName = "ID", nullable = false)

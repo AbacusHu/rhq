@@ -37,6 +37,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.dialect.MySQL5Dialect;
 import org.jetbrains.annotations.NotNull;
 
 import org.jboss.ejb3.annotation.TransactionTimeout;
@@ -44,6 +45,7 @@ import org.jboss.ejb3.annotation.TransactionTimeout;
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.DatabaseTypeFactory;
 import org.rhq.core.db.H2DatabaseType;
+import org.rhq.core.db.MySqlDatabaseType;
 import org.rhq.core.db.OracleDatabaseType;
 import org.rhq.core.db.Postgresql83DatabaseType;
 import org.rhq.core.db.PostgresqlDatabaseType;
@@ -81,11 +83,11 @@ public class CallTimeDataManagerBean implements CallTimeDataManagerLocal, CallTi
     private static final String DATA_KEY_TABLE_NAME = "RHQ_CALLTIME_DATA_KEY";
 
     private static final String CALLTIME_KEY_INSERT_STATEMENT = "INSERT INTO " + DATA_KEY_TABLE_NAME
-        + "(id, schedule_id, call_destination) " + "SELECT %s, ?, ? FROM RHQ_numbers WHERE i = 42 "
+        + "(id, schedule_id, call_destination) " + "SELECT %s, ?, ? FROM RHQ_NUMBERS WHERE i = 42 "
         + "AND NOT EXISTS (SELECT * FROM " + DATA_KEY_TABLE_NAME + " WHERE schedule_id = ? AND call_destination = ?)";
 
     private static final String CALLTIME_KEY_INSERT_STATEMENT_AUTOINC = "INSERT INTO " + DATA_KEY_TABLE_NAME
-        + "(schedule_id, call_destination) " + "SELECT ?, ? FROM RHQ_numbers WHERE i = 42 "
+        + "(schedule_id, call_destination) " + "SELECT ?, ? FROM RHQ_NUMBERS WHERE i = 42 "
         + "AND NOT EXISTS (SELECT * FROM " + DATA_KEY_TABLE_NAME + " WHERE schedule_id = ? AND call_destination = ?)";
 
     private static final String CALLTIME_VALUE_INSERT_STATEMENT = "INSERT /*+ APPEND */ INTO " + DATA_VALUE_TABLE_NAME
@@ -118,7 +120,8 @@ public class CallTimeDataManagerBean implements CallTimeDataManagerLocal, CallTi
     private AlertConditionCacheManagerLocal alertConditionCacheManager;
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public void addCallTimeData(@NotNull Set<CallTimeData> callTimeDataSet) {
+    public void addCallTimeData(@NotNull
+    Set<CallTimeData> callTimeDataSet) {
         if (callTimeDataSet.isEmpty()) {
             return;
         }
@@ -304,9 +307,9 @@ public class CallTimeDataManagerBean implements CallTimeDataManagerLocal, CallTi
 
             if (dbType instanceof PostgresqlDatabaseType || dbType instanceof OracleDatabaseType
                 || dbType instanceof H2DatabaseType) {
-                String keyNextvalSql = JDBCUtil.getNextValSql(conn, "RHQ_calltime_data_key");
+                String keyNextvalSql = JDBCUtil.getNextValSql(conn, "RHQ_CALLTIME_DATA_KEY");
                 insertKeySql = String.format(CALLTIME_KEY_INSERT_STATEMENT, keyNextvalSql);
-            } else if (dbType instanceof SQLServerDatabaseType) {
+            } else if (dbType instanceof MySqlDatabaseType || dbType instanceof SQLServerDatabaseType) {
                 insertKeySql = CALLTIME_KEY_INSERT_STATEMENT_AUTOINC;
             } else {
                 throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);
@@ -375,9 +378,9 @@ public class CallTimeDataManagerBean implements CallTimeDataManagerLocal, CallTi
 
             if (dbType instanceof PostgresqlDatabaseType || dbType instanceof OracleDatabaseType
                 || dbType instanceof H2DatabaseType) {
-                String valueNextvalSql = JDBCUtil.getNextValSql(conn, "RHQ_calltime_data_value");
+                String valueNextvalSql = JDBCUtil.getNextValSql(conn, "RHQ_CALLTIME_DATA_VALUE");
                 insertValueSql = String.format(CALLTIME_VALUE_INSERT_STATEMENT, valueNextvalSql);
-            } else if (dbType instanceof SQLServerDatabaseType) {
+            } else if (dbType instanceof SQLServerDatabaseType || dbType instanceof MySqlDatabaseType) {
                 insertValueSql = CALLTIME_VALUE_INSERT_STATEMENT_AUTOINC;
             } else {
                 throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);
@@ -413,8 +416,8 @@ public class CallTimeDataManagerBean implements CallTimeDataManagerLocal, CallTi
                 insertedRowCount += results[i] == -2 ? 1 : results[i]; // If Oracle returns -2, just count 1 row;
             }
 
-            notifyAlertConditionCacheManager("insertCallTimeDataValues", callTimeDataSet
-                .toArray(new CallTimeData[callTimeDataSet.size()]));
+            notifyAlertConditionCacheManager("insertCallTimeDataValues",
+                callTimeDataSet.toArray(new CallTimeData[callTimeDataSet.size()]));
 
             if (insertedRowCount > 0) {
                 MeasurementMonitor.getMBean().incrementCalltimeValuesInserted(insertedRowCount);

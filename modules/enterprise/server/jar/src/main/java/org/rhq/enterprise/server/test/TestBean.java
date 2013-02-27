@@ -82,38 +82,38 @@ public class TestBean implements TestLocal {
 
         String snapshotQuery = "" //
             + "select" //
-            + "(select count(*) from rhq_meas_data_num_r00) as r00," //
-            + "(select count(*) from rhq_meas_data_num_r01) as r01," //
-            + "(select count(*) from rhq_meas_data_num_r02) as r02," //
-            + "(select count(*) from rhq_meas_data_num_r03) as r03," //
-            + "(select count(*) from rhq_meas_data_num_r04) as r04," //
-            + "(select count(*) from rhq_meas_data_num_r05) as r05," //
-            + "(select count(*) from rhq_meas_data_num_r06) as r06," //
-            + "(select count(*) from rhq_meas_data_num_r07) as r07," //
-            + "(select count(*) from rhq_meas_data_num_r08) as r08," //
-            + "(select count(*) from rhq_meas_data_num_r09) as r09," //
-            + "(select count(*) from rhq_meas_data_num_r10) as r10," //
-            + "(select count(*) from rhq_meas_data_num_r11) as r11," //
-            + "(select count(*) from rhq_meas_data_num_r12) as r12," //
-            + "(select count(*) from rhq_meas_data_num_r13) as r13," //
-            + "(select count(*) from rhq_meas_data_num_r14) as r14," //
-            + "(select count(*) from rhq_measurement_data_num_1h) as oneHour," //
-            + "(select count(*) from rhq_measurement_data_num_6h) as sixHour," //
-            + "(select count(*) from rhq_measurement_data_num_1d) as oneDay," //
-            + "(select count(*) from rhq_measurement_data_trait) as trait," //
-            + "(select count(*) from rhq_measurement_bline) as bline," //
-            + "(select count(*) from rhq_measurement_oob) as oob," //
-            + "(select count(*) from rhq_measurement_oob_tmp) as oob_temp," //
-            + "(select count(*) from rhq_calltime_data_key) as callkey," //
-            + "(select count(*) from rhq_calltime_data_value) as calldata," //
-            + "(select count(ms.id) from rhq_measurement_sched ms" //
-            + "   join rhq_measurement_def md on ms.definition = md.id" //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R00) as r00," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R01) as r01," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R02) as r02," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R03) as r03," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R04) as r04," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R05) as r05," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R06) as r06," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R07) as r07," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R08) as r08," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R09) as r09," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R10) as r10," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R11) as r11," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R12) as r12," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R13) as r13," //
+            + "(select count(*) from RHQ_MEAS_DATA_NUM_R14) as r14," //
+            + "(select count(*) from RHQ_MEASUREMENT_DATA_NUM_1H) as oneHour," //
+            + "(select count(*) from RHQ_MEASUREMENT_DATA_NUM_6H) as sixHour," //
+            + "(select count(*) from RHQ_MEASUREMENT_DATA_NUM_1D) as oneDay," //
+            + "(select count(*) from RHQ_MEASUREMENT_DATA_TRAIT) as trait," //
+            + "(select count(*) from RHQ_MEASUREMENT_BLINE) as bline," //
+            + "(select count(*) from RHQ_MEASUREMENT_OOB) as oob," //
+            + "(select count(*) from RHQ_MEASUREMENT_OOB_TMP) as oob_temp," //
+            + "(select count(*) from RHQ_CALLTIME_DATA_KEY) as callkey," //
+            + "(select count(*) from RHQ_CALLTIME_DATA_VALUE) as calldata," //
+            + "(select count(ms.id) from RHQ_MEASUREMENT_SCHED ms" //
+            + "   join RHQ_MEASUREMENT_DEF md on ms.definition = md.id" //
             + "  where ms.enabled = " + qTrue + " and md.data_type=0) as enabledMetricSchedules," //
-            + "(select count(ms.id) from rhq_measurement_sched ms" //
-            + "   join rhq_measurement_def md on ms.definition = md.id" //
+            + "(select count(ms.id) from RHQ_MEASUREMENT_SCHED ms" //
+            + "   join RHQ_MEASUREMENT_DEF md on ms.definition = md.id" //
             + "  where ms.enabled = " + qTrue + " and md.data_type=1) as enabledTraitSchedules," //
-            + "(select count(ms.id) from rhq_measurement_sched ms" //
-            + "   join rhq_measurement_def md on ms.definition = md.id" //
+            + "(select count(ms.id) from RHQ_MEASUREMENT_SCHED ms" //
+            + "   join RHQ_MEASUREMENT_DEF md on ms.definition = md.id" //
             + "  where ms.enabled = " + qTrue + " and md.data_type=3) as enabledCalltimeSchedules";
 
         String querySuffix = ";";

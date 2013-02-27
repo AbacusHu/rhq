@@ -143,9 +143,9 @@ public abstract class AbstractDriftServerTest extends AbstractEJB3Test {
                         + name + ")").executeUpdate();
 
                 em.createNativeQuery("" //
-                    + "delete from rhq_drift_set ds " //
-                    + "  where not exists ( select * from rhq_drift d where d.drift_set_id = ds.id ) " //
-                    + "    and not exists ( select * from rhq_drift_change_set cs where cs.drift_set_id = ds.id ) ")
+                    + "delete from RHQ_DRIFT_SET ds " //
+                    + "  where not exists ( select * from RHQ_DRIFT d where d.drift_set_id = ds.id ) " //
+                    + "    and not exists ( select * from RHQ_DRIFT_CHANGE_SET cs where cs.drift_set_id = ds.id ) ")
                     .executeUpdate();
 
                 em.createQuery("delete from JPADriftFile df where df.hashId like" + name).executeUpdate();

@@ -107,7 +107,7 @@ public class PropertyDefinition implements Serializable {
     @XmlTransient
     private ConfigurationDefinition configurationDefinition;
 
-    @OneToOne(mappedBy = "memberDefinition")
+    @OneToOne(mappedBy = "memberDefinition", cascade = CascadeType.ALL)
     @XmlTransient
     private PropertyDefinitionList parentPropertyListDefinition;
 
