@@ -231,10 +231,8 @@ public class LdapGroupManagerBean implements LdapGroupManagerLocal {
     public void assignRolesToLdapSubject(int subjectId, List<String> ldapGroupNames) {
         Subject sub = entityManager.find(Subject.class, subjectId);
         List<Role> roles = findRolesByLdapGroupNames(ldapGroupNames);
-        sub.getRoles().clear();
         sub.getLdapRoles().clear();
         for (Role role : roles) {
-            sub.addRole(role);
             sub.addLdapRole(role);
         }
     }
