@@ -246,6 +246,41 @@
 
     <profiles>
 
+		<profile>
+		         <id>dist</id>
+		
+		         <properties>
+		            <rhq.rootDir>../../../..</rhq.rootDir>
+		            <rhq.containerDir>${rhq.rootDir}/dist/</rhq.containerDir>
+		
+		            <rhq.webappsReloadable>true</rhq.webappsReloadable>
+		         </properties>
+		
+		         <build>
+		            <plugins>
+		               <plugin>
+		                 <artifactId>maven-antrun-plugin</artifactId>
+		                 <executions>
+		                     <execution>
+		                        <id>deploy</id>
+		                        <phase>package</phase>
+		                        <configuration>
+		                          <tasks>
+		                            <property name="deployment.dir" location="${rhq.containerDir}" />
+		                            <echo>*** Copying file from target${file.separator}${project.build.finalName}.zip to ${deployment.dir}${file.separator}${project.build.finalName}.zip...</echo>
+		                            <copyfile src="${basedir}/target/${project.build.finalName}.zip" dest="${deployment.dir}/${project.build.finalName}.zip"/>
+		                          </tasks>
+		                        </configuration>
+		                        <goals>
+		                          <goal>run</goal>
+		                        </goals>
+		                     </execution>
+		                  </executions>
+		               </plugin>
+		          </plugins>
+		       </build>
+		    </profile>
+    
         <profile>
             <id>dev</id>
 
