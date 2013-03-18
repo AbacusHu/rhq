@@ -370,6 +370,47 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
     }
 
     /**
+     * Tests mysql database.
+     * @throws Exception
+     */
+    public void testMysql() throws Exception {
+        conn = getMysqlConnection();
+        if (conn == null) {
+            return;
+        }
+
+        DatabaseType dbtype = DatabaseTypeFactory.getDatabaseType(conn);
+
+        assert DatabaseTypeFactory.isMySql(conn);
+        assert DatabaseTypeFactory.isMySql(dbtype);
+        assert dbtype.getVendor().equals("mysql");
+
+        assertMysqlTypes(dbtype);
+    }
+
+    /**
+     * Tests mysql 5.x database
+     * @throws Exception
+     */
+    public void testMysql5() throws Exception {
+        conn = getMysqlConnection("5");
+        if (conn == null) {
+            return;
+        }
+
+        DatabaseType dbtype = DatabaseTypeFactory.getDatabaseType(conn);
+
+        assert DatabaseTypeFactory.isMySql(conn);
+        assert DatabaseTypeFactory.isMySql(dbtype);
+        assert dbtype.getVendor().equals("mysql") : dbtype;
+        String version = dbtype.getVersion();
+        assert version.startsWith("5");
+        assert dbtype.getName().startsWith("mysql") : dbtype;
+
+        assertMysqlTypes(dbtype);
+    }
+
+    /**
      * Tests oracle database.
      *
      * @throws Exception
@@ -433,6 +474,24 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
         assert "SMALLINT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "SMALLINT", dbtype)) : dbtype;
         assert "TIMESTAMP WITHOUT TIME ZONE".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "TIMESTAMP",
             dbtype)) : dbtype;
+    }
+
+    private void assertMysqlTypes(DatabaseType dbtype) {
+        assert dbtype instanceof MySqlDatabaseType;
+
+        assert "INTEGER".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "INTEGER", dbtype)) : dbtype;
+        assert "BIGINT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "LONG", dbtype)) : dbtype;
+        assert "DOUBLE".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "BIGDEC", dbtype)) : dbtype;
+        assert "VARCHAR".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "VARCHAR2", dbtype)) : dbtype;
+        assert "TEXT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "LONGVARCHAR", dbtype)) : dbtype;
+        assert "CHAR".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "CHAR", dbtype)) : dbtype;
+        assert "DOUBLE".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "DOUBLE", dbtype)) : dbtype;
+        assert "BOOLEAN".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "BOOLEAN", dbtype)) : dbtype;
+        assert "LONGBLOB".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "BYTES", dbtype)) : dbtype;
+        assert "LONGBLOB".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "BLOB", dbtype)) : dbtype;
+        assert "TEXT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "CLOB", dbtype)) : dbtype;
+        assert "SMALLINT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "SMALLINT", dbtype)) : dbtype;
+        assert "TIMESTAMP".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "TIMESTAMP", dbtype)) : dbtype;
     }
 
     /**

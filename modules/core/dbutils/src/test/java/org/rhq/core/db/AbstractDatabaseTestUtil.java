@@ -136,6 +136,25 @@ public class AbstractDatabaseTestUtil {
     }
 
     /**
+     * Gets connection to the test mysql database, will be <code>null</code> if not defined.
+     * @return
+     * @throws Exception
+     */
+    protected Connection getMysqlConnection() throws Exception {
+        return getConnection("mysql");
+    }
+
+    /**
+     * Gets connection to the test mysql database of the specified version, will be <code>null</code> if not defined.
+     * @param version
+     * @return
+     * @throws Exception
+     */
+    protected Connection getMysqlConnection(String version) throws Exception {
+        return getConnection("mysql" + version);
+    }
+
+    /**
      * Gets connection to the test oracle database, will be <code>null</code> if not defined.
      *
      * @return connection
@@ -188,7 +207,8 @@ public class AbstractDatabaseTestUtil {
                     e);
             }
 
-            System.err.println(database + " is not available (" + e.toString() + "). DatabaseTest.nofail is set - skipping test");
+            System.err.println(database + " is not available (" + e.toString()
+                + "). DatabaseTest.nofail is set - skipping test");
         }
 
         // just do some simple things with the connection to make sure we can use this
