@@ -159,14 +159,11 @@ public class MeasurementBaselineHHH2833Test extends AbstractEJB3Test {
             + "   SELECT d.id.scheduleId AS scheduleId " //
             + "     FROM MeasurementDataNumeric1H d " //
             + "          JOIN d.schedule s " //
-            + "          LEFT JOIN s.baseline b " //
-            + "    WHERE b.id IS NOT NULL " //
-            + "      AND d.id.timestamp BETWEEN :startTime AND :endTime " //
-            + "      AND b.userEntered = FALSE " //
+            + "    WHERE d.id.timestamp BETWEEN :startTime AND :endTime " //
             + " GROUP BY d.id.scheduleId " //
             + "   HAVING d.id.scheduleId IN (SELECT d1.id.scheduleId " //
             + "                                FROM MeasurementDataNumeric1H d1 "//
             + "                               WHERE d1.id.timestamp <= :startTime) " //
-            + ") ";
+            + ")  AND userEntered = FALSE";
     }
 }
