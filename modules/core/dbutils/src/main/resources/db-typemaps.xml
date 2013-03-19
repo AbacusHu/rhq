@@ -129,6 +129,6 @@ attribute (see DatabaseType.getName/getVendor javadocs).
       <map db="oracle"      type="BLOB" />
       <map db="h2"          type="BLOB" />
       <map db="sqlserver"   type="IMAGE" />
-       <map db="mysql"		type="BLOB" />
+       <map db="mysql"		type="LONGBLOB" />
    </typemap>
 </typemaps>
