@@ -16,14 +16,13 @@
 
    <properties>
      <jboss.zip>${settings.localRepository}/org/jboss/as/jboss-as-dist/${jboss.version}/jboss-as-dist-${jboss.version}.zip</jboss.zip>
-     <jboss.unzip.location>${basedir}/target/${jboss.eap.version}</jboss.unzip.location>
+     <jboss.unzip.location>${basedir}/target/jboss-as-${jboss.version}</jboss.unzip.location>
      <rhq.internal>false</rhq.internal>
-     <jboss.vm.args>-Xmx500m -XX:MaxPermSize=320m</jboss.vm.args>
-     <jboss.vm.args.debug></jboss.vm.args.debug> <!-- -Ditest.debug can override this, see below -->
      <!-- These properties guide which datasources are used for integration tests. Only one should be true.
-          The default is Postgres, specify -Pitest.oracle to use Oracle -->
+          The default is Postgres, specify -Pitest.oracle to use Oracle, specify -Pitest.mysql -->
      <skip.postgres>false</skip.postgres>
-     <skip.oracle>true</skip.oracle>
+	 <skip.postgres>true</skip.postgres>
+     <skip.oracle>true</skip.oracle>     
    </properties>
 
 
@@ -96,6 +95,19 @@
       <dependency>
          <groupId>postgresql</groupId>
          <artifactId>postgresql</artifactId>
+         <!-- NOTE: The version is defined in the root POM's dependencyManagement section. -->
+         <scope>test</scope>
+      </dependency>
+
+	 <dependency>
+         <groupId>mysql</groupId>
+         <artifactId>mysql-connector-java</artifactId>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>net.sourceforge.jtds</groupId>
+         <artifactId>jtds</artifactId>
          <!-- NOTE: The version is defined in the root POM's dependencyManagement section. -->
          <scope>test</scope>
       </dependency>
@@ -235,6 +247,9 @@
                     <driver name="postgres" module="org.rhq.postgres">
                         <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
                     </driver>
+                    <driver name="mysql" module="org.rhq.mysql">
+                        <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
+                    </driver>
                     <driver name="oracle" module="org.rhq.oracle">
                         <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
                     </driver>
@@ -278,6 +293,20 @@
 <module xmlns="urn:jboss:module:1.1" name="org.rhq.postgres">
     <resources>
         <resource-root path="postgresql-${postgresql.version}.jar"/>
+    </resources>
+    <dependencies>
+        <module name="javax.api"/>
+        <module name="javax.transaction.api"/>
+    </dependencies>
+</module>
+]]></echo>
+
+<copy file="${settings.localRepository}/mysql/mysql-connector-java/${mysql.version}/mysql-connector-java-${mysql.version}.jar"
+              toDir="${jboss.modules.dir}/org/rhq/mysql/main" verbose="true" />
+        <echo file="${jboss.modules.dir}/org/rhq/mysql/main/module.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.1" name="org.rhq.mysql">
+    <resources>
+        <resource-root path="mysql-connector-java-${mysql.version}.jar"/>
     </resources>
     <dependencies>
         <module name="javax.api"/>
@@ -605,13 +634,19 @@
              <artifactId>jboss-as-arquillian-container-managed</artifactId>
              <scope>test</scope>
            </dependency>
-           <dependency>
-               <groupId>org.rhq</groupId>
-               <artifactId>rhq-arquillian-suite-extension</artifactId>
-               <version>${project.version}</version>
-               <scope>test</scope>
-             </dependency>
          </dependencies>
+       </profile>
+       
+       
+        <!--  If testing against mysql, override the default property settings  -->
+       <profile>
+         <id>itest.mysql</id>
+         <properties>
+           <skip.postgres>true</skip.postgres>
+           <skip.mysql>false</skip.mysql>
+           <skip.oracle>true</skip.oracle>
+           
+         </properties>
        </profile>
 
        <!--  If testing against oracle, override the default property settings  -->
@@ -619,7 +654,9 @@
          <id>itest.oracle</id>
          <properties>
            <skip.postgres>true</skip.postgres>
+           <skip.mysql>true</skip.mysql>
            <skip.oracle>false</skip.oracle>
+           
          </properties>
        </profile>
 
