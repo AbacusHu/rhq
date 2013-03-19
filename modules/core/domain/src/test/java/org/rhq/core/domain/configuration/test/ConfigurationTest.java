@@ -59,6 +59,7 @@ public class ConfigurationTest extends AbstractEJB3Test {
                 ResourceType type = new ResourceType("platform", "", ResourceCategory.PLATFORM, null);
                 em.persist(type);
                 Resource resource = new Resource("key", "name", type);
+                resource.setUuid("AbstractEJB3Test." + System.currentTimeMillis());
                 em.persist(resource);
 
                 Configuration c = new Configuration();
