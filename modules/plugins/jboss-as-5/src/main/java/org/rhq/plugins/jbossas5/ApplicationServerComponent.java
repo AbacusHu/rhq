@@ -40,6 +40,7 @@ import com.jboss.jbossnetwork.product.jbpm.handlers.ControlActionFacade;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hyperic.sigar.ProcCpu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mc4j.ems.connection.EmsConnection;
@@ -84,6 +85,7 @@ import org.rhq.core.pluginapi.inventory.ResourceContext;
 import org.rhq.core.pluginapi.measurement.MeasurementFacet;
 import org.rhq.core.pluginapi.operation.OperationFacet;
 import org.rhq.core.pluginapi.operation.OperationResult;
+import org.rhq.core.system.ProcessInfo;
 import org.rhq.plugins.jbossas5.connection.LocalProfileServiceConnectionProvider;
 import org.rhq.plugins.jbossas5.connection.ProfileServiceConnection;
 import org.rhq.plugins.jbossas5.connection.ProfileServiceConnectionProvider;
@@ -236,34 +238,40 @@ public class ApplicationServerComponent<T extends ResourceComponent<?>> implemen
             String metricName = (verifiedMetricName != null) ? verifiedMetricName : requestName;
             try {
                 Serializable value = null;
-                boolean foundProperty = false;
-                try {
-                    value = getMetric(managementView, metricName);
-                    foundProperty = true;
-                } catch (ManagedComponentUtils.PropertyNotFoundException e) {
-                    // ignore
-                }
+                if (metricName != null && metricName.equals("cpuPercentage")) {
+                    ProcessInfo process = this.getResourceContext().getNativeProcess();
+                    ProcCpu cpu = process.getCpu();
+                    value = cpu.getPercent();
+                } else {
+                    boolean foundProperty = false;
+                    try {
+                        value = getMetric(managementView, metricName);
+                        foundProperty = true;
+                    } catch (ManagedComponentUtils.PropertyNotFoundException e) {
+                        // ignore
+                    }
 
-                if (value == null) {
-                    metricName = ALTERNATE_METRIC_NAMES.get(metricName);
-                    if (metricName != null) {
-                        try {
-                            value = getMetric(managementView, metricName);
-                            foundProperty = true;
-                        } catch (ManagedComponentUtils.PropertyNotFoundException e) {
-                            // ignore
+                    if (value == null) {
+                        metricName = ALTERNATE_METRIC_NAMES.get(metricName);
+                        if (metricName != null) {
+                            try {
+                                value = getMetric(managementView, metricName);
+                                foundProperty = true;
+                            } catch (ManagedComponentUtils.PropertyNotFoundException e) {
+                                // ignore
+                            }
                         }
                     }
-                }
 
-                if (!foundProperty) {
-                    List<String> propertyNames = new ArrayList<String>(2);
-                    propertyNames.add(requestName);
-                    if (ALTERNATE_METRIC_NAMES.containsKey(requestName)) {
-                        propertyNames.add(ALTERNATE_METRIC_NAMES.get(requestName));
+                    if (!foundProperty) {
+                        List<String> propertyNames = new ArrayList<String>(2);
+                        propertyNames.add(requestName);
+                        if (ALTERNATE_METRIC_NAMES.containsKey(requestName)) {
+                            propertyNames.add(ALTERNATE_METRIC_NAMES.get(requestName));
+                        }
+                        throw new IllegalStateException("A property was not found with any of the following names: "
+                            + propertyNames);
                     }
-                    throw new IllegalStateException("A property was not found with any of the following names: "
-                        + propertyNames);
                 }
 
                 if (value != null) {
@@ -418,7 +426,8 @@ public class ApplicationServerComponent<T extends ResourceComponent<?>> implemen
     }
 
     @NotNull
-    private File resolvePathRelativeToHomeDir(@NotNull String path) {
+    private File resolvePathRelativeToHomeDir(@NotNull
+    String path) {
         File configDir = new File(path);
         if (!configDir.isAbsolute()) {
             Configuration pluginConfig = this.resourceContext.getPluginConfiguration();
@@ -448,7 +457,9 @@ public class ApplicationServerComponent<T extends ResourceComponent<?>> implemen
     }
 
     @NotNull
-    private static String getRequiredPropertyValue(@NotNull Configuration config, @NotNull String propName) {
+    private static String getRequiredPropertyValue(@NotNull
+    Configuration config, @NotNull
+    String propName) {
         String propValue = config.getSimpleValue(propName, null);
         if (propValue == null) {
             // Something's not right - neither autodiscovery, nor the config

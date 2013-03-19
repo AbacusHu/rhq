@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE plugin [
+]>
+
+<plugin name="Weblogic" displayName="Weblogic Application Server"
+	package="org.rhq.plugins.weblogic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	description="provides management and monitoring of Weblogic application server"
+	xmlns="urn:xmlns:rhq-plugin" xmlns:c="urn:xmlns:rhq-configuration">
+
+	<depends plugin="JMX" useClasses="true" />
+
+	<server name="Weblogic Server" classLoader="instance"
+		class="ApplicationServerComponent" discovery="ApplicationServerDiscoveryComponent"
+		description="Weblogic Application Server"
+		supportsManualAdd="true">
+
+		<plugin-configuration>
+			<c:group name="connectionInfo">
+				<c:simple-property name="namingURL" displayName="Naming Provider URL"
+					description="The URL with which to connect to the Weblogic server (e.g. http://127.0.0.1:7080)." />
+				<c:simple-property name="principal" required="false"
+					description="The name of the principal (i.e. user) to authenticate." />
+				<c:simple-property name="credentials" type="password"
+					required="false"
+					description="The credentials (i.e. password) that should be used to authenticate the principal." />
+				<c:simple-property name="homeDir" displayName="Weblogic Home Directory"
+					type="directory" readOnly="true"
+					description="The absolute path to the directory where Weblogic AS is installed (e.g. /usr/opt/bea/wlserver_10.3/server)." />
+			</c:group>
+		</plugin-configuration>
+
+		<process-scan name="weblogic"
+			query="process|basename|match=^java.*,arg|weblogic.Server|match=.*" />
+
+		<operation name="start" displayName="Start"
+			description="Start this application server. The script used is specified in the Operations group of connection properties. This operation will fail if the server is already started.">
+			<results>
+				<c:simple-property name="operationResult"
+					description="Outcome of starting the server." />
+			</results>
+		</operation>
+
+		<operation name="shutdown" displayName="Shut Down"
+			description="Shut down this application server via script or JMX, depending on the settings in the Operations and Advanced groups of connection properties. This operation will fail if the server is already shut down.">
+			<results>
+				<c:simple-property name="operationResult"
+					description="Outcome of shutting down the server." />
+			</results>
+		</operation>
+
+		<operation name="restart" displayName="Restart"
+			description="Shut down (if started) and then start this application server.">
+			<results>
+				<c:simple-property name="operationResult"
+					description="Outcome of restarting the server." />
+			</results>
+		</operation>
+
+		<metric property="cpuPercentage" displayName="CPU Utility Percentage"
+			description="The CPU Utility percentage of Weblogic Application Server"
+			displayType="summary" category="throughput" />
+
+
+		<event name="logEntry" description="an entry was appended to a log file" />
+
+		<server name="JBoss AS JVM" description="JVM of the JBoss AS"
+			sourcePlugin="JMX" sourceType="JMX Server"
+			discovery="org.rhq.plugins.jmx.EmbeddedJMXServerDiscoveryComponent"
+			class="org.rhq.plugins.jmx.EmbeddedJMXServerComponent" singleton="true">
+
+			<plugin-configuration>
+				<c:simple-property name="type" type="string"
+					default="PARENT" readOnly="true"
+					description="The EMS connection type for this JVM (cannot be modified)" />
+			</plugin-configuration>
+
+		</server>
+	</server>
+</plugin>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="modules/common/ant-bundle/src/main/java"/>
+	<classpathentry kind="src" path="modules/plugins/weblogic/src/main/java"/>
 	<classpathentry kind="src" path="modules/enterprise/server/jar/src/test/java"/>
 	<classpathentry kind="src" path="modules/enterprise/server/itests-2/src/test/java"/>
 	<classpathentry kind="src" path="modules/enterprise/scripting/javascript/src/main/java"/>
