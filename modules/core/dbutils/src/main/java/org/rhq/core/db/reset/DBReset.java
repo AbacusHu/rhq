@@ -71,7 +71,6 @@ public class DBReset {
         String adminPassword) throws Exception {
         try {
             if (dbTypeMapping.equals("PostgreSQL")) {
-                System.out.println("PostgreSQL started!");
                 Connection connection = null;
                 Statement dropDB = null;
                 Statement createDB = null;
@@ -108,7 +107,6 @@ public class DBReset {
                     }
                 }
             } else if (dbTypeMapping.equalsIgnoreCase("MySQL")) {
-                System.out.println("MySQL started!");
                 Connection connection = null;
                 Statement dropDB = null;
                 Statement createDB = null;
