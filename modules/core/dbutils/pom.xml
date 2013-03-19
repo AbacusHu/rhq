@@ -75,9 +75,6 @@
         <dependency>
         	<groupId>mysql</groupId>
         	<artifactId>mysql-connector-java</artifactId>
-			<!-- NOTE: Get latest mysql driver. -->
-        	<version>${mysql.version}</version>
-        	<scope>provided</scope>
         </dependency>
     </dependencies>
 
