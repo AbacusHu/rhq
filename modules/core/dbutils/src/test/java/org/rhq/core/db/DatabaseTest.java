@@ -479,7 +479,7 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
     private void assertMysqlTypes(DatabaseType dbtype) {
         assert dbtype instanceof MySqlDatabaseType;
 
-        assert "INTEGER".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "INTEGER", dbtype)) : dbtype;
+        assert "INT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "INTEGER", dbtype)) : dbtype;
         assert "BIGINT".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "LONG", dbtype)) : dbtype;
         assert "DOUBLE".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "BIGDEC", dbtype)) : dbtype;
         assert "VARCHAR".equals(TypeMap.getMappedType(TypeMap.loadKnownTypeMaps(), "VARCHAR2", dbtype)) : dbtype;
