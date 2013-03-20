@@ -1319,7 +1319,7 @@
                         ALTER TABLE RHQ_OPERATION_SCHEDULE DROP CONSTRAINT RHQ_OPERATION_SCHEDULE_KEY
                     </statement>
                     <statement targetDBVendor="mysql" desc="Changing primary key of RHQ_OPERATION_SCHEDULE to ID. Step1/3...">
-                        DROP INDEX RHQ_OPERATION_SCHEDULE_KEY_IDX ON RHQ_OPERATION_SCHEDULE
+                        DROP INDEX RHQ_OPERATION_SCHEDULE_KEY ON RHQ_OPERATION_SCHEDULE
                     </statement>
                     <statement desc="Changing primary key of RHQ_OPERATION_SCHEDULE to ID. Step2/3...">
                         ALTER TABLE RHQ_OPERATION_SCHEDULE ADD PRIMARY KEY (ID)
