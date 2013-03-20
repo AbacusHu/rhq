@@ -717,6 +717,10 @@
                         INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (1, 'RESOURCE', 'Downed Platforms', 'All downed machines across the entire enterprise', 'down platform', 0, 1, true)
                     </statement>
+                    <statement targetDBVendor="mysql" desc="Inserting global default saved search 'Downed Platforms'">
+                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        VALUES (1, 'RESOURCE', 'Downed Platforms', 'All downed machines across the entire enterprise', 'down platform', 0, 1, true)
+                    </statement>
                     <statement targetDBVendor="oracle" desc="Inserting global default saved search 'Downed Platforms'">
                         INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (1, 'RESOURCE', 'Downed Platforms', 'All downed machines across the entire enterprise', 'down platform', 0, 1, 1)
@@ -724,6 +728,10 @@
                 </schema-directSQL>
                 <schema-directSQL>
                     <statement targetDBVendor="postgresql" desc="Inserting global default saved search 'Downed Servers'">
+                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        VALUES (2, 'RESOURCE', 'Downed Servers', 'All downed servers across the entire enterprise', 'down server', 0, 1, true)
+                    </statement>
+                     <statement targetDBVendor="mysql" desc="Inserting global default saved search 'Downed Servers'">
                         INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (2, 'RESOURCE', 'Downed Servers', 'All downed servers across the entire enterprise', 'down server', 0, 1, true)
                     </statement>
@@ -1095,9 +1103,17 @@
                 </schema-directSQL>
                 <schema-deleteColumn table="RHQ_RESOURCE_GROUP" column="MODIFIED_BY" />
                 <schema-directSQL>
-                    <statement desc="RESOURCE_GROUP: Renaming new varchar MODIFIED_BY column">
+                    <statement targetDBVendor = "postgresql" desc="RESOURCE_GROUP: Renaming new varchar MODIFIED_BY column">
                         ALTER TABLE RHQ_RESOURCE_GROUP
                         RENAME COLUMN MODIFIED_BY_VARCHAR TO MODIFIED_BY
+                    </statement>
+                     <statement targetDBVendor = "oracle" desc="RESOURCE_GROUP: Renaming new varchar MODIFIED_BY column">
+                        ALTER TABLE RHQ_RESOURCE_GROUP
+                        RENAME COLUMN MODIFIED_BY_VARCHAR TO MODIFIED_BY
+                    </statement>
+                    <statement targetDBVendor="mysql">
+                        ALTER TABLE RHQ_RESOURCE_GROUP
+                        CHANGE COLUMN MODIFIED_BY_VARCHAR MODIFIED_BY VARCHAR
                     </statement>
                 </schema-directSQL>
             </schemaSpec>
@@ -1271,6 +1287,10 @@
                         UPDATE RHQ_RESOURCE_TYPE
                         SET DELETED = 0
                     </statement>
+                    <statement targetDBVendor="mysql" desc="Set deleted flag for existing resources types to false">
+                        UPDATE RHQ_RESOURCE_TYPE
+                        SET DELETED = false
+                    </statement>
                 </schema-directSQL>
                 <schema-alterColumn table="RHQ_RESOURCE_TYPE" column="DELETED" nullable="FALSE" />
             </schemaSpec>
@@ -1357,6 +1377,9 @@
                     </statement>
                     <statement targetDBVendor="oracle" desc="Set is_private flag for existing repos to false">
                         UPDATE RHQ_REPO SET IS_PRIVATE = 0
+                    </statement>
+                     <statement targetDBVendor="mysql" desc="Set is_private flag for existing repos to false">
+                        UPDATE RHQ_REPO SET IS_PRIVATE = false
                     </statement>
                 </schema-directSQL>
                 <schema-alterColumn table="RHQ_REPO" column="IS_PRIVATE" nullable="FALSE"/>
@@ -1449,6 +1472,9 @@
                      </statement>
                      <statement targetDBVendor="oracle" desc="Creating table RHQ_DRIFT_FILE">
                          CREATE TABLE RHQ_DRIFT_FILE (HASH_ID VARCHAR2(64) PRIMARY KEY)
+                     </statement>
+                      <statement targetDBVendor="mysql" desc="Creating table RHQ_DRIFT_FILE">
+                         CREATE TABLE RHQ_DRIFT_FILE (HASH_ID character varying(64) PRIMARY KEY)
                      </statement>
                  </schema-directSQL>
                  <schema-addColumn   table="RHQ_DRIFT_FILE" column="CTIME" columnType="LONG" />
@@ -1701,10 +1727,16 @@
                     <statement targetDBVendor="postgresql" desc="RHQ_DRIFT_DEFINITION: set is_pinned column (false)">
                         UPDATE RHQ_DRIFT_DEFINITION SET IS_PINNED = FALSE
                     </statement>
+                    <statement targetDBVendor="mysql" desc="RHQ_DRIFT_DEFINITION: set is_pinned column (false)">
+                        UPDATE RHQ_DRIFT_DEFINITION SET IS_PINNED = FALSE
+                    </statement>
                     <statement targetDBVendor="oracle" desc="RHQ_DRIFT_DEFINITION: set is_pinned column (false)">
                         UPDATE RHQ_DRIFT_DEFINITION SET IS_PINNED = 0
                     </statement>
                     <statement targetDBVendor="postgresql" desc="RHQ_DRIFT_DEFINITION: set is_attached column (false)">
+                        UPDATE RHQ_DRIFT_DEFINITION SET IS_ATTACHED = FALSE
+                    </statement>
+                    <statement targetDBVendor="mysql" desc="RHQ_DRIFT_DEFINITION: set is_attached column (false)">
                         UPDATE RHQ_DRIFT_DEFINITION SET IS_ATTACHED = FALSE
                     </statement>
                     <statement targetDBVendor="oracle" desc="RHQ_DRIFT_DEFINITION: set is_attached column (false)">
@@ -1958,6 +1990,13 @@
                     <statement targetDBVendor="postgresql">
                         INSERT INTO RHQ_RESOURCE_AVAIL ( ID, RESOURCE_ID, AVAILABILITY_TYPE )
                             SELECT nextval('RHQ_RESOURCE_AVAIL_ID_SEQ'::text), res.ID, 2
+                              FROM RHQ_RESOURCE res
+                                   LEFT JOIN RHQ_RESOURCE_AVAIL avail ON res.ID = avail.RESOURCE_ID
+                             WHERE avail.ID IS NULL
+                    </statement>
+                    <statement targetDBVendor="mysql">
+                        INSERT INTO RHQ_RESOURCE_AVAIL ( RESOURCE_ID, AVAILABILITY_TYPE )
+                            SELECT res.ID, 2
                               FROM RHQ_RESOURCE res
                                    LEFT JOIN RHQ_RESOURCE_AVAIL avail ON res.ID = avail.RESOURCE_ID
                              WHERE avail.ID IS NULL
