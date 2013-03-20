@@ -1131,9 +1131,17 @@
                 </schema-directSQL>
                 <schema-deleteColumn table="RHQ_RESOURCE" column="MODIFIED_BY" />
                 <schema-directSQL>
-                    <statement desc="RESOURCE: Renaming new varchar MODIFIED_BY column">
+                    <statement targetDBVendor = "postgresql" desc="RESOURCE: Renaming new varchar MODIFIED_BY column">
                         ALTER TABLE RHQ_RESOURCE
                         RENAME COLUMN MODIFIED_BY_VARCHAR TO MODIFIED_BY
+                    </statement>
+                    <statement targetDBVendor = "oracle" desc="RESOURCE: Renaming new varchar MODIFIED_BY column">
+                        ALTER TABLE RHQ_RESOURCE
+                        RENAME COLUMN MODIFIED_BY_VARCHAR TO MODIFIED_BY
+                    </statement>
+                    <statement targetDBVendor="mysql" desc="RESOURCE: Renaming new varchar MODIFIED_BY column">
+                        ALTER TABLE RHQ_RESOURCE
+ I  I                   CHANGE COLUMN MODIFIED_BY_VARCHAR MODIFIED_BY VARCHAR(100)
                     </statement>
                 </schema-directSQL>
             </schemaSpec>
