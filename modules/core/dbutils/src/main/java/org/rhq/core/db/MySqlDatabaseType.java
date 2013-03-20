@@ -134,7 +134,8 @@ public abstract class MySqlDatabaseType extends DatabaseType {
      * @see DatabaseType#reindexTable(Connection, String)
      */
     public void reindexTable(Connection conn, String table) throws SQLException {
-        String reindexSql = "REPAIR TABLE " + table + " QUICK";
+        String engine = System.getProperty("mysql.engine", "InnoDB");
+        String reindexSql = "ALTER TABLE " + table + " ENGINE=" + engine;
         executeSql(conn, reindexSql);
     }
 
