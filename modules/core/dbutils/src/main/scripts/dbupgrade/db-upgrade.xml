@@ -1162,18 +1162,21 @@
             <schemaSpec version="2.93">
                 <!-- the customizable dashboard storage system -->
 
-                <schema-createSequence name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
+                <schema-createSequence targetDBVendor="postgresql" name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
+                <schema-createSequence targetDBVendor="oracle" name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_DASHBOARD">
                         CREATE TABLE RHQ_DASHBOARD ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <!-- mysql mock sequence with auto increment feature, it should be executed after table created -->
+                <schema-createSequence targetDBVendor="mysql" name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
                 <schema-alterColumn table="RHQ_DASHBOARD" column="ID" nullable="FALSE"/>
                 <schema-addColumn   table="RHQ_DASHBOARD" column="NAME" columnType="VARCHAR2" precision="200"/>
                 <schema-alterColumn table="RHQ_DASHBOARD" column="NAME" nullable="FALSE"/>
                 <schema-addColumn   table="RHQ_DASHBOARD" column="SUBJECT_ID" columnType="INTEGER"/>
                 <schema-addColumn   table="RHQ_DASHBOARD" column="SHARED" columnType="BOOLEAN"/>
-                <schema-alterColumn table="RHQ_DASHBOARD" column="SHARED" nullable="FALSE"/>
+                <schema-alterColumn table="RHQ_DASHBOARD" column="SHARED" columnType="BOOLEAN" nullable="FALSE"/>
                 <schema-addColumn   table="RHQ_DASHBOARD" column="CONFIGURATION_ID" columnType="INTEGER"/>
                 <schema-directSQL>
                     <statement>
@@ -1184,12 +1187,14 @@
                     </statement>
                 </schema-directSQL>
 
-                <schema-createSequence name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
+                <schema-createSequence targetDBVendor="postgresql" name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
+                <schema-createSequence targetDBVendor="oracle" name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_DASHBOARD_PORTLET">
                         CREATE TABLE RHQ_DASHBOARD_PORTLET ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence targetDBVendor="mysql" name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
                 <schema-alterColumn table="RHQ_DASHBOARD_PORTLET" column="ID" nullable="FALSE"/>
 
                 <schema-addColumn   table="RHQ_DASHBOARD_PORTLET" column="NAME" columnType="VARCHAR2" precision="200"/>
