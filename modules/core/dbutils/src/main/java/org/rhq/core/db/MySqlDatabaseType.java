@@ -23,8 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.rhq.enterprise.gui.coregui.client.util.Log;
-
 /**
  * Superclass of all versions of the SQL Server database.
  *
@@ -121,7 +119,7 @@ public abstract class MySqlDatabaseType extends DatabaseType {
         } else if (default_value != null && nullable == null) {
             sql += " ALTER " + column + " SET DEFAULT '" + default_value + "'";
         } else {
-            Log.warn("Cannot alter column in MySQL when generic column type is not specified.");
+            System.err.print("Cannot alter column in MySQL when generic column type is not specified.");
             //TODO Since there are test suite altering column without specifying column type. Just ignore it.
             return;
         }
