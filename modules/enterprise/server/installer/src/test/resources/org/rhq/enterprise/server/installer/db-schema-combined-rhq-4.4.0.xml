@@ -2398,7 +2398,7 @@
         <column name="CTIME" type="LONG" required="true"/>
         <column name="NAME" type="VARCHAR2" size="512" required="true"/>
         <column name="DESCRIPTION" type="VARCHAR2" size="512" required="false"/>
-        <column name="INTERVAL" type="LONG" required="true"/>
+        <column name="INTERVAL_VALUE" type="LONG" required="true"/>
         <column name="IS_ENABLED" type="BOOLEAN" required="true"/>        
         <column name="DRIFT_HANDLING_MODE" type="VARCHAR2" size="20" required="true"/>
         <column name="IS_PINNED" type="BOOLEAN" required="true"/>
