@@ -131,6 +131,12 @@ public abstract class MySqlDatabaseType extends DatabaseType {
     }
 
     /**
+     * override, MySQL didn't create sequence, and do nothing when drop sequence.
+     */
+    public void dropSequence(Connection conn, String sequence_name) throws SQLException {
+    }
+
+    /**
      * @see DatabaseType#reindexTable(Connection, String)
      */
     public void reindexTable(Connection conn, String table) throws SQLException {

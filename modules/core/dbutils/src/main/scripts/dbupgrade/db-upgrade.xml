@@ -118,13 +118,12 @@
 
             <!-- RHQ Advisory Representation -->
             <schemaSpec version="2.71">
-                <schema-createSequence name="RHQ_ADVISORY_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_ADVISORY">
                         CREATE TABLE RHQ_ADVISORY ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
-
+                <schema-createSequence name="RHQ_ADVISORY_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_ADVISORY" column="ID" nullable="false" columnType="INTEGER" />
                 <schema-addColumn   table="RHQ_ADVISORY" column="ADVISORY" precision="64" columnType="VARCHAR2" />
                 <schema-alterColumn table="RHQ_ADVISORY" column="ADVISORY" nullable="false" />
@@ -161,12 +160,12 @@
                     </statement>
                 </schema-directSQL>
 
-                <schema-createSequence name="RHQ_ADVISORY_PACKAGE_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement>
                         CREATE TABLE RHQ_ADVISORY_PACKAGE ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_ADVISORY_PACKAGE_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_ADVISORY_PACKAGE" column="ID" nullable="false" />
                 <schema-addColumn   table="RHQ_ADVISORY_PACKAGE" column="ADVISORY_ID" columnType="INTEGER" />
                 <schema-alterColumn table="RHQ_ADVISORY_PACKAGE" column="ADVISORY_ID" nullable="false" />
@@ -192,22 +191,22 @@
                     </statement>
                 </schema-directSQL>
 
-                <schema-createSequence name="RHQ_CVE_ID_SEQ" initial="101" />
                 <schema-directSQL>
                     <statement>
                         CREATE TABLE RHQ_CVE ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_CVE_ID_SEQ" initial="101" />
                 <schema-alterColumn table="RHQ_CVE" column="ID" nullable="false" />
                 <schema-addColumn   table="RHQ_CVE" column="NAME" precision="64" columnType="VARCHAR2" />
                 <schema-alterColumn table="RHQ_CVE" column="NAME" nullable="false" />
 
-                <schema-createSequence name="RHQ_ADVISORY_CVE_ID_SEQ" initial="10001"/>
                 <schema-directSQL>
                     <statement>
                         CREATE TABLE RHQ_ADVISORY_CVE ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_ADVISORY_CVE_ID_SEQ" initial="10001"/>
                 <schema-alterColumn table="RHQ_ADVISORY_CVE" column="ID" nullable="false" />
                 <schema-addColumn   table="RHQ_ADVISORY_CVE" column="ADVISORY_ID" columnType="INTEGER" />
                 <schema-alterColumn table="RHQ_ADVISORY_CVE" column="ADVISORY_ID" nullable="false" />
@@ -233,13 +232,12 @@
                    </statement>
                 </schema-directSQL>
 
-                <schema-createSequence name="RHQ_ADVISORY_BUGLIST_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement>
                         CREATE TABLE RHQ_ADVISORY_BUGLIST ( ID INTEGER PRIMARY KEY)
                     </statement>
                 </schema-directSQL>
-
+                <schema-createSequence name="RHQ_ADVISORY_BUGLIST_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_ADVISORY_BUGLIST" column="ID" nullable="false" />
                 <schema-addColumn   table="RHQ_ADVISORY_BUGLIST" column="ADVISORY_ID" columnType="INTEGER" />
                 <schema-alterColumn table="RHQ_ADVISORY_BUGLIST" column="ADVISORY_ID" nullable="false" />
@@ -292,12 +290,12 @@
 
             <!-- Adding repo_sync support -->
             <schemaSpec version="2.72">
-                <schema-createSequence name="RHQ_REPO_SYNC_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement>
                         CREATE TABLE RHQ_REPO_SYNC ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                    <schema-createSequence name="RHQ_REPO_SYNC_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_REPO_SYNC" column="ID" nullable="false" />
                 <schema-addColumn table="RHQ_REPO_SYNC" column="STATUS" precision="16" columnType="VARCHAR2" />
                 <schema-alterColumn table="RHQ_REPO_SYNC" column="STATUS" nullable="false" />
@@ -329,12 +327,12 @@
 
             <schemaSpec version="2.78">
                 <!-- RHQ_BUNDLE_TYPE -->
-                <schema-createSequence name="RHQ_BUNDLE_TYPE_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_TYPE">
                         CREATE TABLE RHQ_BUNDLE_TYPE ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_TYPE_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_TYPE" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_TYPE" column="NAME" columnType="VARCHAR2" precision="200" />
                 <schema-alterColumn table="RHQ_BUNDLE_TYPE" column="NAME" nullable="FALSE" />
@@ -354,12 +352,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE -->
-                <schema-createSequence name="RHQ_BUNDLE_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE">
                         CREATE TABLE RHQ_BUNDLE ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE" column="NAME" columnType="VARCHAR2" precision="200" />
                 <schema-alterColumn table="RHQ_BUNDLE" column="NAME" nullable="FALSE" />
@@ -397,12 +395,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE_VERSION -->
-                <schema-createSequence name="RHQ_BUNDLE_VERSION_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_VERSION">
                         CREATE TABLE RHQ_BUNDLE_VERSION ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_VERSION_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_VERSION" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_VERSION" column="NAME" columnType="VARCHAR2" precision="200" />
                 <schema-alterColumn table="RHQ_BUNDLE_VERSION" column="NAME" nullable="FALSE" />
@@ -464,12 +462,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE_FILE -->
-                <schema-createSequence name="RHQ_BUNDLE_FILE_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_FILE">
                         CREATE TABLE RHQ_BUNDLE_FILE ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_FILE_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_FILE" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_FILE" column="BUNDLE_VERSION_ID" columnType="INTEGER" />
                 <schema-alterColumn table="RHQ_BUNDLE_FILE" column="BUNDLE_VERSION_ID" nullable="FALSE" />
@@ -492,12 +490,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE_DESTINATION -->
-                <schema-createSequence name="RHQ_BUNDLE_DESTINATION_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_DESTINATION">
                        CREATE TABLE RHQ_BUNDLE_DESTINATION ( ID INTEGER PRIMARY KEY )
                    </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_DESTINATION_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_DESTINATION" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_DESTINATION" column="NAME" columnType="VARCHAR2" precision="200" />
                 <schema-alterColumn table="RHQ_BUNDLE_DESTINATION" column="NAME" nullable="FALSE" />
@@ -535,12 +533,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE_DEPLOYMENT -->
-                <schema-createSequence name="RHQ_BUNDLE_DEPLOYMENT_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_DEPLOYMENT">
                        CREATE TABLE RHQ_BUNDLE_DEPLOYMENT ( ID INTEGER PRIMARY KEY )
                    </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_DEPLOYMENT_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_DEPLOYMENT" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_DEPLOYMENT" column="NAME" columnType="VARCHAR2" precision="200" />
                 <schema-alterColumn table="RHQ_BUNDLE_DEPLOYMENT" column="NAME" nullable="FALSE" />
@@ -590,12 +588,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE_RES_DEPLOY -->
-                <schema-createSequence name="RHQ_BUNDLE_RES_DEPLOY_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_RES_DEPLOY">
                        CREATE TABLE RHQ_BUNDLE_RES_DEPLOY ( ID INTEGER PRIMARY KEY )
                    </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_RES_DEPLOY_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_RES_DEPLOY" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_RES_DEPLOY" column="BUNDLE_DEPLOYMENT_ID" columnType="INTEGER" />
                 <schema-alterColumn table="RHQ_BUNDLE_RES_DEPLOY" column="BUNDLE_DEPLOYMENT_ID" nullable="FALSE" />
@@ -628,12 +626,12 @@
                 </schema-directSQL>
 
                 <!-- RHQ_BUNDLE_RES_DEP_HIST -->
-                <schema-createSequence name="RHQ_BUNDLE_RES_DEP_HIST_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_BUNDLE_RES_DEP_HIST">
                         CREATE TABLE RHQ_BUNDLE_RES_DEP_HIST ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_BUNDLE_RES_DEP_HIST_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_BUNDLE_RES_DEP_HIST" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_BUNDLE_RES_DEP_HIST" column="BUNDLE_RES_DEPLOY_ID" columnType="INTEGER" />
                 <schema-alterColumn table="RHQ_BUNDLE_RES_DEP_HIST" column="BUNDLE_RES_DEPLOY_ID" nullable="FALSE" />
@@ -770,12 +768,12 @@
 
                 <!-- Fixing ldap group authz by adding remaining mapping elements left out(RHQ_ROLE_LDAP_GROUP)  -->
                 <!-- RHQ_ROLE_LDAP_GROUP -->
-                <schema-createSequence name="RHQ_ROLE_LDAP_GROUP_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                    <statement desc="Creating table RHQ_ROLE_LDAP_GROUP">
                     CREATE TABLE RHQ_ROLE_LDAP_GROUP ( ID INTEGER PRIMARY KEY, ROLE_ID INTEGER )
                    </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_ROLE_LDAP_GROUP_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_ROLE_LDAP_GROUP" column="ID" nullable="FALSE" />
                 <schema-alterColumn table="RHQ_ROLE_LDAP_GROUP" column="ROLE_ID" nullable="FALSE" />
                 <schema-addColumn table="RHQ_ROLE_LDAP_GROUP" column="LDAP_GROUP_NAME" columnType="VARCHAR2" precision="128" />
@@ -804,12 +802,12 @@
 
             <!-- The new tagging system -->
             <schemaSpec version="2.85">
-                <schema-createSequence name="RHQ_TAGGING_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_TAGGING">
                         CREATE TABLE RHQ_TAGGING ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_TAGGING_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_TAGGING" column="ID" nullable="FALSE" />
                 <schema-addColumn   table="RHQ_TAGGING" column="NAMESPACE" columnType="VARCHAR2" precision="20" />
                 <schema-addColumn   table="RHQ_TAGGING" column="SEMANTIC" columnType="VARCHAR2" precision="50" />
@@ -1162,15 +1160,13 @@
             <schemaSpec version="2.93">
                 <!-- the customizable dashboard storage system -->
 
-                <schema-createSequence targetDBVendor="postgresql" name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
-                <schema-createSequence targetDBVendor="oracle" name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_DASHBOARD">
                         CREATE TABLE RHQ_DASHBOARD ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
                 <!-- mysql mock sequence with auto increment feature, it should be executed after table created -->
-                <schema-createSequence targetDBVendor="mysql" name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
+                <schema-createSequence name="RHQ_DASHBOARD_ID_SEQ" initial="10001"/>
                 <schema-alterColumn table="RHQ_DASHBOARD" column="ID" nullable="FALSE"/>
                 <schema-addColumn   table="RHQ_DASHBOARD" column="NAME" columnType="VARCHAR2" precision="200"/>
                 <schema-alterColumn table="RHQ_DASHBOARD" column="NAME" nullable="FALSE"/>
@@ -1187,14 +1183,12 @@
                     </statement>
                 </schema-directSQL>
 
-                <schema-createSequence targetDBVendor="postgresql" name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
-                <schema-createSequence targetDBVendor="oracle" name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_DASHBOARD_PORTLET">
                         CREATE TABLE RHQ_DASHBOARD_PORTLET ( ID INTEGER PRIMARY KEY )
                     </statement>
                 </schema-directSQL>
-                <schema-createSequence targetDBVendor="mysql" name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
+                <schema-createSequence name="RHQ_DASHBOARD_PORTLET_ID_SEQ" initial="10001"/>
                 <schema-alterColumn table="RHQ_DASHBOARD_PORTLET" column="ID" nullable="FALSE"/>
 
                 <schema-addColumn   table="RHQ_DASHBOARD_PORTLET" column="NAME" columnType="VARCHAR2" precision="200"/>
@@ -1498,12 +1492,12 @@
                  <schema-alterColumn table="RHQ_DRIFT_FILE" column="STATUS" nullable="FALSE" />
 
                  <!-- RHQ_DRIFT_CONFIG -->
-                 <schema-createSequence name="RHQ_DRIFT_CONFIG_ID_SEQ" initial="10001" />
                  <schema-directSQL>
                      <statement desc="Creating table RHQ_DRIFT_CONFIG">
                          CREATE TABLE RHQ_DRIFT_CONFIG (ID INTEGER PRIMARY KEY)
                      </statement>
                  </schema-directSQL>
+                <schema-createSequence name="RHQ_DRIFT_CONFIG_ID_SEQ" initial="10001" />
                  <schema-addColumn   table="RHQ_DRIFT_CONFIG" column="CTIME" columnType="LONG" />
                  <schema-alterColumn table="RHQ_DRIFT_CONFIG" column="CTIME" nullable="FALSE" />
                  <schema-addColumn   table="RHQ_DRIFT_CONFIG" column="NAME" columnType="VARCHAR2" precision="512" />
@@ -1534,12 +1528,12 @@
 
                  
                  <!-- RHQ_DRIFT_CHANGE_SET -->
-                 <schema-createSequence name="RHQ_DRIFT_CHANGE_SET_ID_SEQ" initial="10001" />
                  <schema-directSQL>
                      <statement desc="Creating table RHQ_DRIFT_CHANGE_SET">
                          CREATE TABLE RHQ_DRIFT_CHANGE_SET (ID INTEGER PRIMARY KEY)
                      </statement>
                  </schema-directSQL>
+                 <schema-createSequence name="RHQ_DRIFT_CHANGE_SET_ID_SEQ" initial="10001" />
                  <schema-addColumn   table="RHQ_DRIFT_CHANGE_SET" column="CTIME" columnType="LONG" />
                  <schema-alterColumn table="RHQ_DRIFT_CHANGE_SET" column="CTIME" nullable="FALSE" />
                  <schema-addColumn   table="RHQ_DRIFT_CHANGE_SET" column="VERSION" columnType="INTEGER" />
@@ -1568,12 +1562,12 @@
                  </schema-directSQL>
 
                  <!-- RHQ_DRIFT -->
-                 <schema-createSequence name="RHQ_DRIFT_ID_SEQ" initial="10001" />
                  <schema-directSQL>
                      <statement desc="Creating table RHQ_DRIFT">
                          CREATE TABLE RHQ_DRIFT (ID INTEGER PRIMARY KEY)
                      </statement>
                  </schema-directSQL>
+                 <schema-createSequence name="RHQ_DRIFT_ID_SEQ" initial="10001" />
                  <schema-addColumn   table="RHQ_DRIFT" column="CTIME" columnType="LONG" />
                  <schema-alterColumn table="RHQ_DRIFT" column="CTIME" nullable="FALSE" />
                  <schema-addColumn   table="RHQ_DRIFT" column="CATEGORY" columnType="VARCHAR2" precision="20" />
@@ -1676,7 +1670,6 @@
 
             <schemaSpec version="2.115">                                                                
                 <!-- RHQ_DRIFT_DEF_TEMPLATE -->
-                <schema-createSequence name="RHQ_DRIFT_DEF_TEMPLATE_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_DRIFT_DEF_TEMPLATE">
                         CREATE TABLE RHQ_DRIFT_DEF_TEMPLATE (
@@ -1685,6 +1678,7 @@
                             CONFIG_ID INTEGER)
                     </statement>
                 </schema-directSQL>
+                <schema-createSequence name="RHQ_DRIFT_DEF_TEMPLATE_ID_SEQ" initial="10001" />
                 <schema-alterColumn table="RHQ_DRIFT_DEF_TEMPLATE" column="RESOURCE_TYPE_ID" nullable="FALSE"/>
                 <schema-alterColumn table="RHQ_DRIFT_DEF_TEMPLATE" column="CONFIG_ID" nullable="FALSE"/>
                 <schema-addColumn   table="RHQ_DRIFT_DEF_TEMPLATE" column="NAME" columnType="VARCHAR2" precision="128"/>
@@ -1775,13 +1769,12 @@
 
 
                 <!-- RHQ_DRIFT_SET -->
-                <schema-createSequence name="RHQ_DRIFT_SET_ID_SEQ" initial="10001" />
                 <schema-directSQL>
                     <statement desc="Creating table RHQ_DRIFT_SET">
                         CREATE TABLE RHQ_DRIFT_SET (ID INTEGER PRIMARY KEY)
                     </statement>
                 </schema-directSQL>
-
+                <schema-createSequence name="RHQ_DRIFT_SET_ID_SEQ" initial="10001" />
 
                 <!-- RHQ_DRIFT_CHANGE_SET -->
                 <!-- Resource column is now nullable -->
