@@ -108,6 +108,8 @@ public abstract class MySqlDatabaseType extends DatabaseType {
                 db_column_type += " (" + precision + ")";
             }
             sql += " " + db_column_type;
+        } else {
+            throw new IllegalArgumentException("MySQL cannot alter column without setting column type.");
         }
 
         if (default_value != null) {
