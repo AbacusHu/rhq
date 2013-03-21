@@ -1311,7 +1311,7 @@
                 <schema-alterColumn table="RHQ_OPERATION_SCHEDULE" column="ID" nullable="FALSE"  />
                 <!-- Finally, make ID the primary key, rather than (JOB_NAME, JOB_GROUP), and make
                      (JOB_NAME, JOB_GROUP) a unique index instead. -->
-                <schema-directSQL>
+                <schema-directSQL ignoreError="true">
                     <statement targetDBVendor="postgresql" desc="Changing primary key of RHQ_OPERATION_SCHEDULE to ID. Step1/3...">
                         ALTER TABLE RHQ_OPERATION_SCHEDULE DROP CONSTRAINT RHQ_OPERATION_SCHEDULE_KEY
                     </statement>
