@@ -21,9 +21,12 @@ package org.rhq.core.db.ant.dbupgrade;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+
 import mazz.i18n.Msg;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+
 import org.rhq.core.db.DatabaseType;
 import org.rhq.core.db.ant.DbAntI18NFactory;
 import org.rhq.core.db.ant.DbAntI18NResourceKeys;
@@ -177,8 +180,8 @@ public class SST_DirectSQL extends SchemaSpecTask {
 
             if (targetDBVendor != null) {
                 if (!targetDBVendor.equalsIgnoreCase(databaseType.getVendor())) {
-                    log(MSG.getMsg(DbAntI18NResourceKeys.SCHEMA_SPEC_TASK_VENDOR_MISMATCH, targetDBVendor, databaseType
-                        .getVendor()));
+                    log(MSG.getMsg(DbAntI18NResourceKeys.SCHEMA_SPEC_TASK_VENDOR_MISMATCH, targetDBVendor,
+                        databaseType.getVendor()));
                     return;
                 }
 
@@ -193,7 +196,8 @@ public class SST_DirectSQL extends SchemaSpecTask {
                 log(MSG.getMsg(DbAntI18NResourceKeys.DIRECTSQL_EXECUTING, sqlDescription, sqlStatment));
                 databaseType.executeSql(databaseConnection, sqlStatment);
             } catch (Exception e) {
-                throw new BuildException(MSG.getMsg(DbAntI18NResourceKeys.SCHEMA_SPEC_TASK_FAILURE, "DirectSQL", e), e);
+                throw new BuildException(MSG.getMsg(DbAntI18NResourceKeys.SCHEMA_SPEC_TASK_FAILURE, "DirectSQL", e)
+                    + ":" + sqlStatment, e);
             }
 
             return;

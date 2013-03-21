@@ -1784,7 +1784,7 @@
 
                 <!-- RHQ_DRIFT_CHANGE_SET -->
                 <!-- Resource column is now nullable -->
-                <schema-alterColumn table="RHQ_DRIFT_CHANGE_SET" column="RESOURCE_ID" nullable="TRUE" />
+                <schema-alterColumn table="RHQ_DRIFT_CHANGE_SET" column="RESOURCE_ID" columnType="INTEGER" nullable="TRUE" />
                 
                 <!--  Add new drift_set column with FK -->
                 <schema-addColumn   table="RHQ_DRIFT_CHANGE_SET" column="DRIFT_SET_ID" columnType="INTEGER"/>
