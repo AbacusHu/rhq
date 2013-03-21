@@ -59,7 +59,7 @@ class MySqlColumn extends Column {
      * Do nothing here, generally, this method is used to create the sequence in Postgresql, Oracle, or H2 database. However, MySQL doesn't support sequence. 
      * Instead, it use auto increment to mock the function. In this way, we will alter the append the SQL after the table is created. So we put the logic in <method>MySqlColumn.getPostCreateCommands()</method> 
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("rawtypes")
     protected void getPreCreateCommands(List cmds) {
         return;
     }

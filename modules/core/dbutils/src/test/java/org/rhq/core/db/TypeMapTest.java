@@ -82,5 +82,6 @@ public class TypeMapTest {
         map.getMappedType("FOO", new Oracle8DatabaseType()).equals("ORACLEFOO");
         map.getMappedType("FOO", new Postgresql7DatabaseType()).equals("POSTGRES7FOO");
         map.getMappedType("FOO", new Postgresql8DatabaseType()).equals("POSTGRES8FOO");
+        map.getMappedType("FOO", new MySql5DatabaseType()).equals("MYSQL5FOO");
     }
 }

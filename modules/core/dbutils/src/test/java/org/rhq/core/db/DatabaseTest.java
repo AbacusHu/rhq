@@ -21,6 +21,7 @@ package org.rhq.core.db;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
@@ -78,51 +79,17 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
     public void testDbSetupPostgres() throws Exception {
         String db = "postgresql";
 
-        // skip test if it is to be skipped
-        conn = getConnection(db);
-        if (conn == null) {
-            return;
-        } else {
-            conn.close();
-        }
+        testDbSetup(db);
+    }
 
-        DBSetup dbsetup = new DBSetup(getTestDatabaseConnectionUrl(db), getTestDatabaseConnectionUsername(db),
-            getTestDatabaseConnectionPassword(db), false);
+    /**
+     * Test DBSetup using a MySQL DB.
+     * @throws Exception
+     */
+    public void testDbSetupMysql() throws Exception {
+        String db = "mysql";
 
-        try {
-            dbsetup.setup("small-dbsetup.xml");
-
-            conn = getConnection(db);
-            DatabaseType dbtype = DatabaseTypeFactory.getDatabaseType(conn);
-
-            assert dbtype.checkTableExists(conn, "TEST_SMALL");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "ID");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYLONG");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYBIGDEC");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYLONGVARCHAR");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYDOUBLE");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYBOOLEAN");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYBYTES");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYVARCHAR2");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYCLOB");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYBLOB");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYCHAR");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYSMALLINT");
-            assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYTIMESTAMP");
-
-            ResultSet results = conn.prepareCall("SELECT MYVARCHAR2 FROM TEST_SMALL").executeQuery();
-            results.next();
-            assert "abc-myvarchar2".equals(results.getString("MYVARCHAR2"));
-            results.close();
-        } finally {
-            try {
-                dbsetup.uninstall("small-dbsetup.xml");
-            } catch (Exception e) {
-                System.err.println("Cannot uninstall the test schema");
-            }
-        }
-
-        return;
+        testDbSetup(db);
     }
 
     /**
@@ -133,37 +100,17 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
     public void testDbUninstallPostgres() throws Exception {
         String db = "postgresql";
 
-        // skip test if it is to be skipped
-        conn = getConnection(db);
-        if (conn == null) {
-            return;
-        } else {
-            conn.close();
-        }
+        testDbUninstall(db);
+    }
 
-        DBSetup dbsetup = new DBSetup(getTestDatabaseConnectionUrl(db), getTestDatabaseConnectionUsername(db),
-            getTestDatabaseConnectionPassword(db), false);
+    /**
+     * Test DB uninstall using a MySQL DB
+     * @throws Exception
+     */
+    public void testDbUninstallMysql() throws Exception {
+        String db = "mysql";
 
-        dbsetup.setup("small-dbsetup.xml");
-
-        DatabaseType dbtype;
-
-        // get the connection, make sure the setup worked, and then uninstall the schema
-        try {
-            conn = getConnection(db);
-            dbtype = DatabaseTypeFactory.getDatabaseType(conn);
-            assert dbtype.checkTableExists(conn, "TEST_SMALL");
-        } finally {
-            dbsetup.uninstall("small-dbsetup.xml");
-        }
-
-        // make sure the uninstall worked
-        try {
-            boolean result = dbtype.checkTableExists(conn, "TEST_SMALL");
-            assert false : "Should have thrown an IllegalStateException";
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        testDbUninstall(db);
     }
 
     /**
@@ -175,6 +122,11 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
         String db = "h2";
 
         // skip test if it is to be skipped
+        testDbSetup(db);
+    }
+
+    private void testDbUninstall(String db) throws Exception, SQLException {
+        // skip test if it is to be skipped
         conn = getConnection(db);
         if (conn == null) {
             return;
@@ -185,12 +137,44 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
         DBSetup dbsetup = new DBSetup(getTestDatabaseConnectionUrl(db), getTestDatabaseConnectionUsername(db),
             getTestDatabaseConnectionPassword(db), false);
 
+        dbsetup.setup("small-dbsetup.xml");
+
+        DatabaseType dbtype;
+
+        // get the connection, make sure the setup worked, and then uninstall the schema
+        try {
+            conn = getConnection(db);
+            dbtype = DatabaseTypeFactory.getDatabaseType(conn);
+            assert dbtype.checkTableExists(conn, "TEST_SMALL");
+        } finally {
+            dbsetup.uninstall("small-dbsetup.xml");
+        }
+
+        // make sure the uninstall worked
+        try {
+            dbtype.checkTableExists(conn, "TEST_SMALL");
+            assert false : "Should have thrown an IllegalStateException";
+        } catch (IllegalStateException e) {
+            // expected
+        }
+    }
+
+
+    private void testDbSetup(String db) throws Exception, SQLException {
+        conn = getConnection(db);
+        if (conn == null) {
+            return;
+        } else {
+            conn.close();
+        }
+
+        DBSetup dbsetup = new DBSetup(getTestDatabaseConnectionUrl(db), getTestDatabaseConnectionUsername(db),
+            getTestDatabaseConnectionPassword(db), false);
+        conn = getConnection(db);
+        DatabaseType dbtype = DatabaseTypeFactory.getDatabaseType(conn);
+
         try {
             dbsetup.setup("small-dbsetup.xml");
-
-            conn = getConnection(db);
-            DatabaseType dbtype = DatabaseTypeFactory.getDatabaseType(conn);
-
             assert dbtype.checkTableExists(conn, "TEST_SMALL");
             assert dbtype.checkColumnExists(conn, "TEST_SMALL", "ID");
             assert dbtype.checkColumnExists(conn, "TEST_SMALL", "MYLONG");
@@ -218,7 +202,12 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
             }
         }
 
-        return;
+        try {
+            boolean result = dbtype.checkTableExists(conn, "TEST_SMALL");
+            assert false : "Should have thrown an IllegalStateException";
+        } catch (IllegalStateException e) {
+            // expected
+        }
     }
 
     /**
@@ -228,36 +217,7 @@ public class DatabaseTest extends AbstractDatabaseTestUtil {
      */
     public void testDbUninstallH2() throws Exception {
         String db = "h2";
-
-        // skip test if it is to be skipped
-        conn = getConnection(db);
-        if (conn == null) {
-            return;
-        }
-
-        DBSetup dbsetup = new DBSetup(getTestDatabaseConnectionUrl(db), getTestDatabaseConnectionUsername(db),
-            getTestDatabaseConnectionPassword(db), false);
-
-        dbsetup.setup("small-dbsetup.xml");
-
-        DatabaseType dbtype;
-
-        // get the connection, make sure the setup worked, and then uninstall the schema
-        try {
-            conn = getConnection(db);
-            dbtype = DatabaseTypeFactory.getDatabaseType(conn);
-            assert dbtype.checkTableExists(conn, "TEST_SMALL");
-        } finally {
-            dbsetup.uninstall("small-dbsetup.xml");
-        }
-
-        // make sure the uninstall worked
-        try {
-            boolean result = dbtype.checkTableExists(conn, "TEST_SMALL");
-            assert false : "Should have thrown an IllegalStateException";
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        testDbUninstall(db);
     }
 
     /**

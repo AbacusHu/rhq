@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -70,13 +71,13 @@ public class DBInstallationTest {
         recreateTestDatabase();
     }
 
-    // @AfterMethod
+    @AfterMethod
     public void afterInstallation() throws Exception {
         recreateTestDatabase();
         ServerInstallUtil.createNewDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
     }
 
-    //@Test
+    @Test
     public void overwriteJON240Schema() throws Exception {
         installSchemaAndData("2.4.0");
         ServerInstallUtil.createNewDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
@@ -88,31 +89,31 @@ public class DBInstallationTest {
         ServerInstallUtil.upgradeExistingDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
     }
 
-    //@Test
+    @Test
     public void overwriteJON300Schema() throws Exception {
         installSchemaAndData("3.0.0");
         ServerInstallUtil.createNewDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
     }
 
-    // @Test
+    @Test
     public void upgradeJON300Schema() throws Exception {
         installSchemaAndData("3.0.0");
         ServerInstallUtil.upgradeExistingDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
     }
 
-    // @Test
+    @Test
     public void upgradeRHQ420Schema() throws Exception {
         installSchemaAndData("rhq-4.2.0");
         ServerInstallUtil.upgradeExistingDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
     }
 
-    // @Test
+    @Test
     public void upgradeRHQ430Schema() throws Exception {
         installSchemaAndData("rhq-4.3.0");
         ServerInstallUtil.upgradeExistingDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
     }
-    
-    // @Test
+
+    @Test
     public void upgradeRHQ440Schema() throws Exception {
         installSchemaAndData("rhq-4.4.0");
         ServerInstallUtil.upgradeExistingDatabaseSchema(getInstallProperties(), serverDetails, PASSWORD, logDir);
@@ -175,7 +176,7 @@ public class DBInstallationTest {
         dbProperties.put(ServerProperties.PROP_EMAIL_FROM_ADDRESS, "rhqadmin@localhost.com");
         return dbProperties;
     }
-    
+
     private static File filterXmlFile(File xmlFile, HashMap<String, String> props) throws IOException {
         // first slurp the file contents in memory
         InputStream fileInStream = new FileInputStream(xmlFile);

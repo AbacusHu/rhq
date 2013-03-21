@@ -19,6 +19,7 @@
 package org.rhq.core.db;
 
 import java.io.File;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.helper.ProjectHelper2;
@@ -39,7 +40,15 @@ public class AntDatabaseTest extends AbstractDatabaseTestUtil {
      */
     public void testDbUpgradePostgres() throws Exception {
         String db = "postgresql";
+        testDbUpgrade(db);
+    }
 
+    public void testDbUpgradeMysql() throws Exception {
+        String db = "mysql";
+        testDbUpgrade(db);
+    }
+
+    private void testDbUpgrade(String db) throws Exception {
         // skip test if it is to be skipped
         if (getConnection(db) == null) {
             return;

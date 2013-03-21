@@ -1311,7 +1311,7 @@
                 <schema-alterColumn table="RHQ_OPERATION_SCHEDULE" column="ID" nullable="FALSE"  />
                 <!-- Finally, make ID the primary key, rather than (JOB_NAME, JOB_GROUP), and make
                      (JOB_NAME, JOB_GROUP) a unique index instead. -->
-                <schema-directSQL ignoreError="true">
+                <schema-directSQL>
                     <statement targetDBVendor="postgresql" desc="Changing primary key of RHQ_OPERATION_SCHEDULE to ID. Step1/3...">
                         ALTER TABLE RHQ_OPERATION_SCHEDULE DROP CONSTRAINT RHQ_OPERATION_SCHEDULE_KEY
                     </statement>
@@ -1319,7 +1319,7 @@
                         ALTER TABLE RHQ_OPERATION_SCHEDULE DROP CONSTRAINT RHQ_OPERATION_SCHEDULE_KEY
                     </statement>
                     <statement targetDBVendor="mysql" desc="Changing primary key of RHQ_OPERATION_SCHEDULE to ID. Step1/3...">
-                        DROP INDEX RHQ_OPERATION_SCHEDULE_KEY ON RHQ_OPERATION_SCHEDULE
+                        ALTER TABLE RHQ_OPERATION_SCHEDULE DROP PRIMARY KEY;
                     </statement>
                     <statement desc="Changing primary key of RHQ_OPERATION_SCHEDULE to ID. Step2/3...">
                         ALTER TABLE RHQ_OPERATION_SCHEDULE ADD PRIMARY KEY (ID)
@@ -1810,11 +1810,23 @@
                         RENAME COLUMN DRIFT_CONFIG_ID
                         TO DRIFT_DEFINITION_ID
                     </statement>
+
+                    <!--Cannot rename column when constraint exists, drop it first and then recreate it -->
+                    <statement targetDBVendor="mysql" desc="drop constraint first">
+                        ALTER TABLE RHQ_DRIFT_CHANGE_SET DROP FOREIGN KEY RHQ_DCS_DRIFT_CONFIG_ID_FK;
+                    </statement>
                     <statement targetDBVendor="mysql" desc="Renaming RHQ_DRIFT_CHANGE_SET.DRIFT_CONFIG_ID column to DRIFT_DEFINITION_ID">
                         ALTER TABLE RHQ_DRIFT_CHANGE_SET
                         CHANGE COLUMN DRIFT_CONFIG_ID DRIFT_DEFINITION_ID INT
                     </statement>
+                    <statement targetDBVendor="mysql" desc="create constraint after rename column name">
+                         ALTER TABLE RHQ_DRIFT_CHANGE_SET
+                         ADD CONSTRAINT RHQ_DCS_DRIFT_CONFIG_ID_FK
+                         FOREIGN KEY (DRIFT_DEFINITION_ID)
+                         REFERENCES RHQ_DRIFT_DEFINITION (ID)
+                    </statement>
                 </schema-directSQL>
+
 
                 <!--  Add new drift_handling_mode column -->
                 <schema-addColumn   table="RHQ_DRIFT_CHANGE_SET" column="DRIFT_HANDLING_MODE" columnType="VARCHAR2" precision="20" />

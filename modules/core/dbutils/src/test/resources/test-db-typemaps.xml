@@ -6,5 +6,6 @@
       <map db="postgresql7" type="POSTGRES7FOO" />
       <map db="postgresql8" type="POSTGRES8FOO" />
       <map db="oracle"      type="ORACLEFOO" />
+      <map db="mysql5"      type="MYSQL5FOO" />
    </typemap>
 </typemaps>
