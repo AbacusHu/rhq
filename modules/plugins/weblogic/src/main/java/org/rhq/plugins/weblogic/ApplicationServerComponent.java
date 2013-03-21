@@ -31,8 +31,13 @@ public class ApplicationServerComponent<T extends ResourceComponent<?>> implemen
      *  @see org.rhq.core.pluginapi.inventory.ResourceComponent#getAvailability()
      */
     public AvailabilityType getAvailability() {
-        // TODO supply real implementation
-        return AvailabilityType.UP;
+        ProcessInfo process = resourceContext.getNativeProcess();
+        if (process.freshSnapshot().isRunning()) {
+            return AvailabilityType.UP;
+        } else {
+            return AvailabilityType.DOWN;
+        }
+
     }
 
     /**
