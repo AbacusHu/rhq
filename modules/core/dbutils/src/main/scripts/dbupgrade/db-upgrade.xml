@@ -712,29 +712,29 @@
 
                 <schema-directSQL>
                     <statement targetDBVendor="postgresql" desc="Inserting global default saved search 'Downed Platforms'">
-                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        INSERT INTO RHQ_SAVED_SEARCH (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (1, 'RESOURCE', 'Downed Platforms', 'All downed machines across the entire enterprise', 'down platform', 0, 1, true)
                     </statement>
                     <statement targetDBVendor="mysql" desc="Inserting global default saved search 'Downed Platforms'">
-                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        INSERT INTO RHQ_SAVED_SEARCH (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (1, 'RESOURCE', 'Downed Platforms', 'All downed machines across the entire enterprise', 'down platform', 0, 1, true)
                     </statement>
                     <statement targetDBVendor="oracle" desc="Inserting global default saved search 'Downed Platforms'">
-                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        INSERT INTO RHQ_SAVED_SEARCH (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (1, 'RESOURCE', 'Downed Platforms', 'All downed machines across the entire enterprise', 'down platform', 0, 1, 1)
                     </statement>
                 </schema-directSQL>
                 <schema-directSQL>
                     <statement targetDBVendor="postgresql" desc="Inserting global default saved search 'Downed Servers'">
-                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        INSERT INTO RHQ_SAVED_SEARCH (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (2, 'RESOURCE', 'Downed Servers', 'All downed servers across the entire enterprise', 'down server', 0, 1, true)
                     </statement>
                      <statement targetDBVendor="mysql" desc="Inserting global default saved search 'Downed Servers'">
-                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        INSERT INTO RHQ_SAVED_SEARCH (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (2, 'RESOURCE', 'Downed Servers', 'All downed servers across the entire enterprise', 'down server', 0, 1, true)
                     </statement>
                     <statement targetDBVendor="oracle" desc="Inserting global default saved search 'Downed Servers'">
-                        INSERT INTO rhq_saved_search (id, context, name, description, pattern, last_compute_time, subject_id, global)
+                        INSERT INTO RHQ_SAVED_SEARCH (id, context, name, description, pattern, last_compute_time, subject_id, global)
                         VALUES (2, 'RESOURCE', 'Downed Servers', 'All downed servers across the entire enterprise', 'down server', 0, 1, 1)
                     </statement>
                 </schema-directSQL>
@@ -1049,8 +1049,8 @@
                  fixes are not present in a new db. As such, ignore any errors.
             -->
             <schemaSpec version="2.90">
-                <schema-dropSequence   ignoreError="true" name="rhq_tag_id_seq" />
-                <schema-dropSequence   ignoreError="true" name="rhq_advisory_buglist_seq" />
+                <schema-dropSequence   ignoreError="true" name="RHQ_TAG_ID_SEQ" />
+                <schema-dropSequence   ignoreError="true" name="RHQ_ADVISORY_BUGLIST_SEQ" />
 
                 <schema-createSequence ignoreError="true" name="RHQ_ADVISORY_BUGLIST_ID_SEQ" initial="10001" />
 
@@ -1474,7 +1474,7 @@
                         REFERENCES RHQ_CONFIG_PROP_DEF (ID)
                     </statement>
                 </schema-directSQL>
-                <schema-createSequence name="rhq_config_pd_osrc_id_seq" initial="10001" />
+                <schema-createSequence name="RHQ_CONFIG_PD_OSRC_ID_SEQ" initial="10001" />
             </schemaSpec>
 
             <schemaSpec version="2.111">
@@ -1638,7 +1638,7 @@
             <schemaSpec version="2.112">
                 <schema-directSQL>
                     <statement desc="Adding drift server plugin active plugin system configuration property">
-                        INSERT INTO rhq_system_config (id, property_key, property_value, default_property_value)
+                        INSERT INTO RHQ_SYSTEM_CONFIG (id, property_key, property_value, default_property_value)
                         VALUES (57, 'ACTIVE_DRIFT_PLUGIN', 'drift-jpa', 'drift-jpa')
                     </statement>
                 </schema-directSQL>
@@ -1660,7 +1660,7 @@
             <schemaSpec version="2.114">
                 <schema-directSQL>
                     <statement desc="Adding drift file purge system setting">
-                        INSERT INTO rhq_system_config (id, property_key, property_value, default_property_value)
+                        INSERT INTO RHQ_SYSTEM_CONFIG (id, property_key, property_value, default_property_value)
                         VALUES (58, 'DRIFT_FILE_PURGE', '2678400000', '2678400000')
                     </statement>
                 </schema-directSQL>
@@ -1838,7 +1838,7 @@
                     </statement>
                 </schema-directSQL>
 
-                <!-- Morph rhq_drift_template_map rows into rhq_drift_def_template rows. The rhq_drift_template_map
+                <!-- Morph RHQ_DRIFT_TEMPLATE_MAP rows into RHQ_DRIFT_DEF_TEMPLATE rows. The RHQ_DRIFT_TEMPLATE_MAP
                      table is obsolete. -->
                 <schema-javaTask className="DriftTemplateMapDatabaseUpgradeTask" />                
 

@@ -102,6 +102,7 @@ public abstract class MySqlDatabaseType extends DatabaseType {
         String db_column_type = null;
         String sql = "ALTER TABLE " + table;
 
+        boolean execute = true;
         if (generic_column_type != null) {
             db_column_type = getDBTypeFromGenericType(generic_column_type);
             if (precision != null) {
@@ -119,12 +120,14 @@ public abstract class MySqlDatabaseType extends DatabaseType {
         } else if (default_value != null && nullable == null) {
             sql += " ALTER " + column + " SET DEFAULT '" + default_value + "'";
         } else {
+            execute = false;
             System.err.print("Cannot alter column in MySQL when generic column type is not specified.");
             //TODO Since there are test suite altering column without specifying column type. Just ignore it.
-            return;
         }
 
-        executeSql(conn, sql);
+        if (execute) {
+            executeSql(conn, sql);
+        }
 
         // now that we've altered the column, let's reindex if we were told to do so
         if ((reindex != null) && reindex.booleanValue()) {
