@@ -63,21 +63,19 @@ import org.rhq.core.domain.tagging.Tag;
  * @author Jay Shaughnessy
  */
 @Entity
-@NamedQueries( { //
+@NamedQueries({ //
 @NamedQuery(name = BundleDeployment.QUERY_FIND_ALL, query = "" //
     + "SELECT bd FROM BundleDeployment bd "),
     @NamedQuery(name = BundleDeployment.QUERY_UPDATE_FOR_DESTINATION_REMOVE, query = "" //
         + "UPDATE BundleDeployment bd " //
         + "   SET bd.replacedBundleDeploymentId = NULL " //
-        + " WHERE bd.replacedBundleDeploymentId IN " //
-        + "     ( SELECT innerbd.id FROM BundleDeployment innerbd " //
-        + "        WHERE innerbd.destination.id  = :destinationId ) "),
+        + " WHERE bd.destination.id  = :destinationId"),
     @NamedQuery(name = BundleDeployment.QUERY_UPDATE_FOR_VERSION_REMOVE, query = "" //
         + "UPDATE BundleDeployment bd " //
         + "   SET bd.replacedBundleDeploymentId = NULL " //        
-        + " WHERE bd.replacedBundleDeploymentId IN " //        
-        + "     ( SELECT innerbd.id FROM BundleDeployment innerbd " //
-        + "        WHERE innerbd.bundleVersion.id  = :bundleVersionId ) ") })
+        + " WHERE bd.bundleVersion.id = :bundleVersionId"
+    ) })
+
 @SequenceGenerator(allocationSize = org.rhq.core.domain.util.Constants.ALLOCATION_SIZE, name = "RHQ_BUNDLE_DEPLOYMENT_ID_SEQ", sequenceName = "RHQ_BUNDLE_DEPLOYMENT_ID_SEQ")
 @Table(name = "RHQ_BUNDLE_DEPLOYMENT")
 @XmlAccessorType(XmlAccessType.FIELD)

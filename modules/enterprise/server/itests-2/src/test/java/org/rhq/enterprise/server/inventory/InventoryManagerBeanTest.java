@@ -164,6 +164,8 @@ public class InventoryManagerBeanTest extends AbstractEJB3Test {
             } else {
                 type = new OracleDataTypeFactory();
             }
+        } else if (name.contains("mysql")) {
+            type = new org.dbunit.ext.mysql.MySqlDataTypeFactory();
         }
 
         if (type != null) {

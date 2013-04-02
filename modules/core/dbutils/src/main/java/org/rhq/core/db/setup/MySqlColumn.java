@@ -51,10 +51,10 @@ class MySqlColumn extends Column {
             } else {
                 strCmd += " DEFAULT '" + this.getsDefault() + "'";
             }
-            
         }
         return strCmd;
     }
+
     /**
      * Do nothing here, generally, this method is used to create the sequence in Postgresql, Oracle, or H2 database. However, MySQL doesn't support sequence. 
      * Instead, it use auto increment to mock the function. In this way, we will alter the append the SQL after the table is created. So we put the logic in <method>MySqlColumn.getPostCreateCommands()</method> 
@@ -64,6 +64,10 @@ class MySqlColumn extends Column {
         return;
     }
 
+    /**
+     * 1. alter table set auto_increment if column is auto_increment.
+     * 2. alter table set row_format=dynamic if column size is more than 256 bytes. With corresponding configuration in MySQL, it increases the max key length from 767 to 3072.
+     */
     protected void getPostCreateCommands(List cmds) {
         if (hasDefault()) {
             switch (getDefault()) {
@@ -74,5 +78,10 @@ class MySqlColumn extends Column {
                 break;
             }
         }
+
+        if (m_iSize >= 256) {
+            cmds.add("ALTER TABLE " + this.m_strTableName + " ROW_FORMAT=DYNAMIC");
+        }
     }
+
 }

@@ -119,19 +119,17 @@ import org.rhq.core.domain.alert.notification.AlertNotificationLog;
         + " WHERE alert.id IN ( :alertIds )"), //
     @NamedQuery(name = Alert.QUERY_DELETE_BY_RESOURCES, query = "" //
         + "DELETE FROM Alert alert " //
-        + " WHERE alert.id IN ( SELECT innerA.id " //
+        + " WHERE alert.alertDefinition.id IN ( SELECT ad.id " //
         + "                       FROM AlertDefinition ad " //
-        + "                       JOIN ad.alerts innerA " //
         + "                      WHERE ad.resource.id IN ( :resourceIds ) )"),
     @NamedQuery(name = Alert.QUERY_DELETE_BY_RESOURCE_TEMPLATE, query = "DELETE FROM Alert alert "
-        + "WHERE alert.id IN (SELECT innerAlerts.id " + "                   FROM AlertDefinition alertDef "
-        + "                   JOIN alertDef.alerts innerAlerts "
+        + "WHERE alert.alertDefinition.id IN (SELECT alertDef.id "
+        + "                   FROM AlertDefinition alertDef "
         + "                   WHERE alertDef.resourceType.id = :resourceTypeId)"),
     @NamedQuery(name = Alert.QUERY_DELETE_BY_RESOURCE_GROUPS, query = "" //
         + "DELETE FROM Alert alert " //
-        + " WHERE alert.id IN ( SELECT innerA.id " //
+        + " WHERE alert.alertDefinition.id IN ( SELECT ad.id " //
         + "                       FROM AlertDefinition ad " //
-        + "                       JOIN ad.alerts innerA " //
         + "                       JOIN ad.resource.implicitGroups rg " //
         + "                      WHERE rg.id IN ( :groupIds ) )"),
     @NamedQuery(name = Alert.QUERY_ACKNOWLEDGE_ALL, query = "" //
@@ -149,18 +147,16 @@ import org.rhq.core.domain.alert.notification.AlertNotificationLog;
         + "UPDATE Alert AS alert " //
         + "   SET alert.acknowledgingSubject = :subjectName, " //
         + "       alert.acknowledgeTime = :ackTime " //
-        + " WHERE alert.id IN ( SELECT innerA.id " //
+        + " WHERE alert.alertDefinition.id IN ( SELECT ad.id " //
         + "                       FROM AlertDefinition ad " //
-        + "                       JOIN ad.alerts innerA " //
         + "                      WHERE ad.resource.id IN ( :resourceIds ) )" //
         + "   AND alert.acknowledgingSubject IS NULL "),
     @NamedQuery(name = Alert.QUERY_ACKNOWLEDGE_BY_RESOURCE_GROUPS, query = "" //
         + "UPDATE Alert AS alert " //
         + "   SET alert.acknowledgingSubject = :subjectName, " //
         + "       alert.acknowledgeTime = :ackTime " //
-        + " WHERE alert.id IN ( SELECT innerA.id " //
+        + " WHERE alert.alertDefinition.id IN ( SELECT ad.id " //
         + "                       FROM AlertDefinition ad " //
-        + "                       JOIN ad.alerts innerA " //
         + "                       JOIN ad.resource.implicitGroups rg " //
         + "                      WHERE rg.id IN ( :groupIds ) )" //
         + "   AND alert.acknowledgingSubject IS NULL "),

@@ -151,13 +151,19 @@ public class MeasurementOOBManagerBean implements MeasurementOOBManagerLocal {
                 t1 = System.currentTimeMillis();
                 timings.add((t1 - t0));
                 log.debug("Insert of new oobs done");
+            } else if (dbType instanceof MySqlDatabaseType) {
+                stmt = conn.prepareStatement(MeasurementOOB.MERGE_TABLES_MYSQL);
+                stmt.executeUpdate();
+                t1 = System.currentTimeMillis();
+                timings.add((t1 - t0));
+                log.debug("Merge of master table done");
             } else if (dbType instanceof OracleDatabaseType) {
                 stmt = conn.prepareStatement(MeasurementOOB.MERGE_TABLES_ORACLE);
                 stmt.executeUpdate();
                 t1 = System.currentTimeMillis();
                 timings.add((t1 - t0));
                 log.debug("Merge of master table done");
-            } else if (dbType instanceof H2DatabaseType || dbType instanceof SQLServerDatabaseType || dbType instanceof MySqlDatabaseType) {
+            } else if (dbType instanceof H2DatabaseType || dbType instanceof SQLServerDatabaseType) {
                 stmt = conn.prepareStatement(MeasurementOOB.UPDATE_MASTER_GENERIC);
                 stmt.executeUpdate();
                 t1 = System.currentTimeMillis();

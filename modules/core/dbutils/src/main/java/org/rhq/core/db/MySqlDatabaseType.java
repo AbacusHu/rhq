@@ -1,21 +1,3 @@
-/*
- * RHQ Management Platform
- * Copyright (C) 2005-2008 Red Hat, Inc.
- * All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation version 2 of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
 package org.rhq.core.db;
 
 import java.sql.Connection;
@@ -23,15 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * Superclass of all versions of the SQL Server database.
- *
- * @author Joseph Marques
- */
 public abstract class MySqlDatabaseType extends DatabaseType {
 
-    //Since select clause in brackets is supported in MySQL. We use below SQL in both select result and select result as one column.
-    public static final String SELECT_SEQUENCE = "(SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = '%s' and table_schema = database() limit 1)";
+    private static final String SELECT_SEQUENCE = "SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = '%s' and table_schema = database() limit 1";
 
     /**
      * The vendor name for all MySql databases.
@@ -50,7 +26,6 @@ public abstract class MySqlDatabaseType extends DatabaseType {
     public String getHibernateDialect() {
         return "org.hibernate.dialect.MySQLDialect";
     }
-
     /**
      * @see DatabaseType#isTableNotFoundException(SQLException)
      */
@@ -152,12 +127,14 @@ public abstract class MySqlDatabaseType extends DatabaseType {
         executeSql(conn, reindexSql);
     }
 
-    /**  
-     * @return false due to: http://support.microsoft.com/kb/321843 
-     */
     @Override
     public boolean supportsSelfReferringCascade() {
         return false;
+    }
+
+    public String getEscapeCharacter() {
+        String result = System.getProperty("rhq.server.database.escape-character");
+        return (null == result) ? "/" : result;
     }
 
 }

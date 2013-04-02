@@ -160,6 +160,8 @@ public class DatabaseSetupInterceptor implements IInvokedMethodListener {
             } else {
                 type = new org.dbunit.ext.oracle.OracleDataTypeFactory();
             }
+        } else if (name.contains("mysql")) {
+            type = new org.dbunit.ext.mysql.MySqlDataTypeFactory();
         }
         if (type!=null) {
             LOG.info("setting db type for dbunit to " + type.getClass().getCanonicalName());

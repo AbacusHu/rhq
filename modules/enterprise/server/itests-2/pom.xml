@@ -26,9 +26,10 @@
     <jboss.vm.args>-Xmx700m -XX:MaxPermSize=200m -Djava.security.manager
       -Djava.security.policy==${jboss.unzip.location}/security.policy</jboss.vm.args>
     <jboss.vm.args.debug></jboss.vm.args.debug> <!-- -Ditest.debug can override this, see below -->
-    <!-- These properties guide which datasources are used for integration tests. Only one should be true. The default is
-      Postgres, specify -Pitest.oracle to use Oracle -->
+    <!-- These properties guide which datasources are used for integration tests. Only one should be true. The default is 
+      Postgres, specify -Pitest.mysql to use MySQL and specify -Pitest.oracle to use Oracle -->
     <skip.postgres>false</skip.postgres>
+    <skip.mysql>false</skip.mysql>
     <skip.oracle>true</skip.oracle>
 
     <liquibase.version>2.0.3</liquibase.version>
@@ -249,6 +250,9 @@
                     <driver name="postgres" module="org.rhq.postgres">
                         <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
                     </driver>
+                    <driver name="mysql" module="org.rhq.mysql">
+                        <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
+                    </driver>
                     <driver name="oracle" module="org.rhq.oracle">
                         <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
                     </driver>
@@ -294,6 +298,20 @@
 <module xmlns="urn:jboss:module:1.1" name="org.rhq.postgres">
     <resources>
         <resource-root path="postgresql-${postgresql.version}.jar"/>
+    </resources>
+    <dependencies>
+        <module name="javax.api"/>
+        <module name="javax.transaction.api"/>
+    </dependencies>
+</module>
+]]></echo>
+
+<copy file="${settings.localRepository}/mysql/mysql-connector-java/${mysql.version}/mysql-connector-java-${mysql.version}.jar"
+              toDir="${jboss.modules.dir}/org/rhq/mysql/main" verbose="true" />
+        <echo file="${jboss.modules.dir}/org/rhq/mysql/main/module.xml"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.1" name="org.rhq.mysql">
+    <resources>
+        <resource-root path="mysql-connector-java-${mysql.version}.jar"/>
     </resources>
     <dependencies>
         <module name="javax.api"/>
@@ -382,7 +400,79 @@
               <goal>run</goal>
             </goals>
           </execution>
+ <execution>
+           <id>prepare MySQL datasource</id>
+           <phase>process-test-resources</phase>
+           <configuration>
+             <skip>${skip.mysql}</skip>
+             <target>
+               <property name="jboss.conf" location="${jboss.unzip.location}/standalone/configuration/standalone.xml" />
+               <echo>Will now add test configuration datasource to JBossAS config file: ${jboss.conf}</echo>
+               <replace file="${jboss.conf}">
+                 <replacefilter>
+                   <replacetoken>&lt;/datasource></replacetoken>
+                   <replacevalue><![CDATA[
+               </datasource>                    
+               <!-- FOR RHQ TESTING -->
+               <datasource jta="false" jndi-name="java:jboss/datasources/NoTxRHQDS" pool-name="NoTxRHQDS" enabled="true" use-java-context="true">
+                   <connection-url>${rhq.test.ds.connection-url}</connection-url>
+                   <connection-property name="char.encoding">UTF-8</connection-property>
+                   <driver>mysql</driver>
+                   <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+                   <pool>
+                       <min-pool-size>2</min-pool-size>
+                       <max-pool-size>5</max-pool-size>
+                   </pool>
+                   <security>
+                       <security-domain>RHQDSSecurityDomain</security-domain>
+                   </security>
+                   <validation>
+                       <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"/>
+                       <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter"/>
+                   </validation>
+                   <timeout>
+                       <blocking-timeout-millis>30000</blocking-timeout-millis>
+                       <idle-timeout-minutes>15</idle-timeout-minutes>
+                   </timeout>
+                   <statement>
+                       <prepared-statement-cache-size>75</prepared-statement-cache-size>
+                   </statement>
+               </datasource>
+               <xa-datasource jta="true" jndi-name="java:jboss/datasources/RHQDS" pool-name="RHQDS" enabled="true" use-java-context="true">
+                   <xa-datasource-property name="DatabaseName">${rhq.test.ds.db-name}</xa-datasource-property>
+                   <xa-datasource-property name="PortNumber">${rhq.test.ds.port}</xa-datasource-property>
+                   <xa-datasource-property name="ServerName">${rhq.test.ds.server-name}</xa-datasource-property>
+                   <driver>mysql</driver>
+                   <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+                   <xa-pool>
+                       <min-pool-size>5</min-pool-size>
+                       <max-pool-size>50</max-pool-size>
+                   </xa-pool>
+                   <security>
+                       <security-domain>RHQDSSecurityDomain</security-domain>
+                   </security>
+                   <validation>
+                       <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"/>
+                       <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter"/>
+                   </validation>
+                   <timeout>
+                       <blocking-timeout-millis>30000</blocking-timeout-millis>
+                       <idle-timeout-minutes>15</idle-timeout-minutes>
+                   </timeout>
+                   <statement>
+                       <prepared-statement-cache-size>75</prepared-statement-cache-size>
+                   </statement> 
+               </xa-datasource>]]></replacevalue>
+                 </replacefilter>
 
+               </replace>
+
+             </target>
+           </configuration>
+           <goals>
+             <goal>run</goal>
+           </goals>
+         </execution>
           <execution>
             <id>prepare Oracle datasource</id>
             <phase>process-test-resources</phase>
@@ -708,11 +798,22 @@
       </dependencies>
     </profile>
 
+
+    <profile>
+    <id>itest.mysql</id>
+	    <properties>
+	      <skip.postgres>true</skip.postgres>
+	      <skip.mysql>false</skip.mysql>
+	      <skip.oracle>true</skip.oracle>
+	    </properties>
+    </profile>
+       
     <!-- If testing against oracle, override the default property settings -->
     <profile>
       <id>itest.oracle</id>
       <properties>
         <skip.postgres>true</skip.postgres>
+        <skip.mysql>true</skip.mysql>
         <skip.oracle>false</skip.oracle>
       </properties>
 

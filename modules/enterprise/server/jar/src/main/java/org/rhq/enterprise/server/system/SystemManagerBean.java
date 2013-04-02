@@ -77,11 +77,15 @@ import org.rhq.enterprise.server.util.SystemDatabaseInformation;
 public class SystemManagerBean implements SystemManagerLocal, SystemManagerRemote {
     private final String SQL_VACUUM = "VACUUM ANALYZE {0}";
 
+    private final String SQL_OPTIMIZE = "OPTIMIZE TABLE {0}";
+
     private final String SQL_ANALYZE = "ANALYZE";
 
     private final String SQL_REINDEX = "REINDEX TABLE {0}";
 
     private final String SQL_REBUILD = "ALTER INDEX {0} REBUILD UNRECOVERABLE";
+
+    private final String SQL_REINDEX_MYSQL = "ALTER TABLE {0} ENGINE=InnoDB";
 
     private final String[] TABLES_TO_VACUUM = { "RHQ_RESOURCE", "RHQ_CONFIG", "RHQ_CONFIG_PROPERTY", "RHQ_AGENT" };
 
@@ -527,6 +531,10 @@ public class SystemManagerBean implements SystemManagerLocal, SystemManagerRemot
                 for (String table : TABLES_TO_REINDEX) {
                     duration += doCommand(dbtype, conn, SQL_REINDEX, table);
                 }
+            } else if (DatabaseTypeFactory.isMySql(dbtype)) {
+                for (String table : TABLES_TO_REINDEX) {
+                    duration += doCommand(dbtype, conn, SQL_REINDEX_MYSQL, table);
+                }
             } else if (DatabaseTypeFactory.isOracle(dbtype)) {
                 for (String index : ORA_INDEXES_TO_REBUILD) {
                     duration += doCommand(dbtype, conn, SQL_REBUILD, index);
@@ -561,21 +569,28 @@ public class SystemManagerBean implements SystemManagerLocal, SystemManagerRemot
         try {
             conn = dataSource.getConnection();
             dbtype = DatabaseTypeFactory.getDatabaseType(conn);
-            if (!DatabaseTypeFactory.isPostgres(dbtype)) {
-                return -1;
+
+            if (DatabaseTypeFactory.isPostgres(dbtype)) {
+                if (tableNames == null) // no names given -> operate on all tables.
+                {
+                    tableNames = new String[1];
+                    tableNames[0] = null;
+                }
+
+                for (String tableName : tableNames) {
+                    duration += doCommand(dbtype, conn, SQL_VACUUM, tableName);
+                }
+                return duration;
             }
 
-            if (tableNames == null) // no names given -> operate on all tables.
-            {
-                tableNames = new String[1];
-                tableNames[0] = null;
+            if (DatabaseTypeFactory.isMySql(dbtype) && tableNames != null) {
+                for (String tableName : tableNames) {
+                    duration += doCommand(dbtype, conn, SQL_OPTIMIZE, tableName);
+                }
+                return duration;
             }
 
-            for (String tableName : tableNames) {
-                duration += doCommand(dbtype, conn, SQL_VACUUM, tableName);
-            }
-
-            return duration;
+            return -1;
         } catch (Exception e) {
             log.error("Error vacuuming database: " + e.getMessage(), e);
             return duration;

@@ -630,10 +630,9 @@ public class DBSetup {
         wrapper_exception.initCause(e);
 
         if (e.getErrorCode() == 1071 && DatabaseTypeFactory.isMySql(m_databaseType)) {
-            //do nothing. Just ignore the exception. In MySQL, index cannot be created successfully while the columns length are more than 1000.
-            //@TODO NEED Fix it.
+            //Just ignore the exception. Index cannot be created successfully while the sum of columns' length is more than 3072.
             log(LogPriority.WARN, DbUtilsI18NResourceKeys.DBSETUP_SETUP_INDEXES,
-                "Max key length is 1000 bytes in MySQL. Just don't create index in this case.");
+                "Max key length is 3072 bytes in MySQL. Just don't create index in this case.");
         } else {
             log(LogPriority.FATAL, e, DbUtilsI18NResourceKeys.DBSETUP_FATAL_SQL_EXCEPTION, full_error_msg);
             throw wrapper_exception;

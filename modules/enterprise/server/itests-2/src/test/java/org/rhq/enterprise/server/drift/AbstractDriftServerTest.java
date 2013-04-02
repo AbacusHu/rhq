@@ -135,7 +135,7 @@ public abstract class AbstractDriftServerTest extends AbstractEJB3Test {
                 em.createQuery("delete from JPADrift d where d.newDriftFile like" + name).executeUpdate();
 
                 em.createQuery(
-                    "delete from JPADriftChangeSet cs where cs.id in ( select cs1.id from JPADriftChangeSet cs1 where cs1.driftDefinition.name like"
+                    "delete from JPADriftChangeSet cs where cs.driftDefinition.id in ( select definition.id from DriftDefinition definition where definition.name like"
                         + name + ")").executeUpdate();
 
                 em.createQuery(
@@ -143,9 +143,9 @@ public abstract class AbstractDriftServerTest extends AbstractEJB3Test {
                         + name + ")").executeUpdate();
 
                 em.createNativeQuery("" //
-                    + "delete from RHQ_DRIFT_SET ds " //
-                    + "  where not exists ( select * from RHQ_DRIFT d where d.drift_set_id = ds.id ) " //
-                    + "    and not exists ( select * from RHQ_DRIFT_CHANGE_SET cs where cs.drift_set_id = ds.id ) ")
+                        + "delete from RHQ_DRIFT_SET" //
+                        + "  where not exists ( select * from RHQ_DRIFT d where d.drift_set_id = RHQ_DRIFT_SET.id ) " //
+                        + "    and not exists ( select * from RHQ_DRIFT_CHANGE_SET cs where cs.drift_set_id = RHQ_DRIFT_SET.id ) ")
                     .executeUpdate();
 
                 em.createQuery("delete from JPADriftFile df where df.hashId like" + name).executeUpdate();

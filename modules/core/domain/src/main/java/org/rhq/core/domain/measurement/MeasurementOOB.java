@@ -30,7 +30,7 @@ import javax.persistence.Table;
  *
  * @author Heiko W. Rupp
  */
-@NamedQueries( {
+@NamedQueries({
     @NamedQuery(name = MeasurementOOB.GET_SCHEDULES_WITH_OOB_AGGREGATE, query = "" //
         + "   SELECT new org.rhq.core.domain.measurement.composite.MeasurementOOBComposite" //
         + "        ( res.name, res.id, res.ancestry, res.resourceType.id, def.displayName, sched.id, o.timestamp, def.id, o.oobFactor, " //
@@ -201,6 +201,13 @@ public class MeasurementOOB {
         + "      WHEN MATCHED THEN UPDATE SET oob_factor = tmp_.oob_factor, time_stamp = tmp_.time_stamp \n"
         + "      WHEN NOT MATCHED THEN INSERT ( oob_.schedule_id, oob_.time_stamp, oob_.oob_factor ) \n"
         + "                            VALUES ( tmp_.schedule_id, tmp_.time_stamp, tmp_.oob_factor )";
+
+    public static final String MERGE_TABLES_MYSQL = "" //
+        + "REPLACE INTO RHQ_MEASUREMENT_OOB(schedule_id,  time_stamp, oob_factor) \n"
+        + "     select tmp.schedule_id,  tmp.time_stamp, tmp.oob_factor \n"
+        + "             from  RHQ_MEASUREMENT_OOB_TMP tmp"
+        + "             left join RHQ_MEASUREMENT_OOB oob on oob.schedule_id = tmp.schedule_id"
+        + "             where oob.schedule_id is null or (oob.schedule_id is not null and tmp.oob_factor > oob.oob_factor) ";
 
     /* 
      * H2 syntax doesn't support the more complex SET...FROM...WHERE like Postgres, and although it does support

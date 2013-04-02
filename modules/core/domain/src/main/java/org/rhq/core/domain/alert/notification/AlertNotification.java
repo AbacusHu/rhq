@@ -46,7 +46,7 @@ import org.rhq.core.domain.configuration.Configuration;
 import org.rhq.core.domain.configuration.Property;
 
 @Entity
-@NamedQueries( {
+@NamedQueries({
     @NamedQuery(name = AlertNotification.DELETE_BY_ID, query = "DELETE FROM AlertNotification an WHERE an.id IN ( :ids )"),
     @NamedQuery(name = AlertNotification.QUERY_DELETE_BY_RESOURCES, query = "DELETE FROM AlertNotification an WHERE an.alertDefinition IN ( SELECT ad FROM AlertDefinition ad WHERE ad.resource.id IN ( :resourceIds ) )"),
     @NamedQuery(name = AlertNotification.QUERY_DELETE_ORPHANED, query = "DELETE FROM AlertNotification an WHERE an.alertDefinition IS NULL"),
@@ -66,26 +66,22 @@ import org.rhq.core.domain.configuration.Property;
         + "         )" //
         + "      )" //
         + "   )" //
-        + " WHERE id IN (" //
-        + "   SELECT notifParam.id" //
+        + " WHERE property.configuration.id IN (" //
+        + "   SELECT config.id" //
         + "     FROM AlertNotification notif" //
-        + "     JOIN notif.configuration.properties notifParam" //
+        + "     JOIN notif.configuration config" //
         + "    WHERE notif.senderName = :senderName" //
-        + "      AND notifParam.name = :propertyName" //
-        + "      AND locate(:paramValue,notifParam.stringValue) <> 0" //
-        + ")"
-    ),
+        + ") AND property.name = :propertyName "//
+        + " AND locate(:paramValue,property.stringValue) <> 0"),
+
     @NamedQuery(name = AlertNotification.QUERY_UPDATE_PARAMETER_FOR_NOTIFICATIONS, query = "" //
         + " UPDATE Property property" //
         + "     SET stringValue = :propertyValue" //
-        + " WHERE id IN ( " 
-        + "     SELECT notifParam.id" //
+        + " WHERE property.configuration.id IN ( " + "     SELECT config.id" //
         + "         FROM AlertNotification notif" //
-        + "         JOIN notif.configuration.properties notifParam" //
+        + "         JOIN notif.configuration config" //
         + "     WHERE notif.id IN ( :alertNotificationIds )" //
-        + "         AND notifParam.name = :propertyName" //
-        + ")"
-    )})
+        + ") AND property.name = :propertyName") })
 @SequenceGenerator(allocationSize = org.rhq.core.domain.util.Constants.ALLOCATION_SIZE, name = "RHQ_ALERT_NOTIFICATION_ID_SEQ", sequenceName = "RHQ_ALERT_NOTIFICATION_ID_SEQ")
 @Table(name = "RHQ_ALERT_NOTIFICATION")
 public class AlertNotification implements Serializable {
@@ -98,7 +94,7 @@ public class AlertNotification implements Serializable {
     public static final String QUERY_DELETE_BY_ROLE_ID = "AlertNotification.deleteByRoleId";
     public static final String QUERY_CLEANSE_PARAMETER_VALUE_FOR_ALERT_SENDER = "AlertNotification.cleanseParameterValueForAlertSender";
     public static final String QUERY_UPDATE_PARAMETER_FOR_NOTIFICATIONS = "AlertNotification.updateParameterForNotifications";
-    
+
     @Column(name = "ID", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "RHQ_ALERT_NOTIFICATION_ID_SEQ")
     @Id

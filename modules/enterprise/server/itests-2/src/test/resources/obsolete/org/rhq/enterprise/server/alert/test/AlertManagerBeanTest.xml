@@ -1,5 +1,5 @@
 <dataset>
-    <rhq_resource_type id="1"
+    <RHQ_RESOURCE_TYPE id="1"
                        name="AlertManagerBeanTest_Platform"
                        plugin="AlertManagerBeanTest_Plugin"
                        category="PLATFORM"
@@ -9,7 +9,7 @@
                        supports_manual_add="false"
                        deleted="false"/>
 
-    <rhq_resource id="1"
+    <RHQ_RESOURCE id="1"
                   resource_key="1"
                   name="test1"
                   resource_type_id="1"
@@ -17,7 +17,7 @@
                   inventory_status="COMMITTED"
                   connected="false"/>
 
-    <rhq_alert_definition id="1"
+    <RHQ_ALERT_DEFINITION id="1"
                           name="alerttest"
                           enabled="true"
                           priority="HIGH"
@@ -29,7 +29,7 @@
                           recovery_id="0"
                           ctime="12345"
                           mtime="12345"/>
-    <rhq_alert_definition id="2"
+    <RHQ_ALERT_DEFINITION id="2"
                           name="delete_by_type_def"
                           enabled="true"
                           priority="HIGH"
@@ -42,41 +42,41 @@
                           ctime="12345"
                           mtime="12345"/>
 
-    <rhq_alert_condition id="1"
+    <RHQ_ALERT_CONDITION id="1"
                          alert_definition_id="1"
                          type="AVAILABILITY"
                          comparator="=="/>
-    <rhq_alert_condition id="2"
+    <RHQ_ALERT_CONDITION id="2"
                          alert_definition_id="2"
                          type="AVAILABILITY"
                          comparator="=="/>
     
-    <rhq_alert id="1"
+    <RHQ_ALERT id="1"
               alert_definition_id="1"
               ctime="12345"
               recovery_id="0"/>
-    <rhq_alert id="2"
+    <RHQ_ALERT id="2"
                alert_definition_id="2"
                ctime="12345"
                recovery_id="0"/>
 
-    <rhq_alert_condition_log id="1"
+    <RHQ_ALERT_CONDITION_LOG id="1"
                              ctime="12345"
                              condition_id="1"
                              value="dummy value"
                              alert_id="1"/>
-    <rhq_alert_condition_log id="2"
+    <RHQ_ALERT_CONDITION_LOG id="2"
                              ctime="12345"
                              condition_id="2"
                              value="dummy value"
                              alert_id="2"/>
 
-    <rhq_alert_notif_log id="1"
+    <RHQ_ALERT_NOTIF_LOG id="1"
                          alert_id="1"
                          sender="dummy"
                          result_state="SUCCESS"
                          message="message"/>
-    <rhq_alert_notif_log id="2"
+    <RHQ_ALERT_NOTIF_LOG id="2"
                          alert_id="2"
                          sender="dummy"
                          result_state="SUCCESS"

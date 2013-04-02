@@ -106,28 +106,25 @@ import org.rhq.core.domain.cloud.Server;
         + " UPDATE Agent a " //
         + "    SET a.status = -1 " // negative numbers so that bitmask strategy does not conflict with this one
         + "  WHERE a.status = 0 " // we only need the first guy to set it
-        + "    AND a.id = ( SELECT resA.id " // only update ourselves;
+        + "    AND a.id = ( SELECT res.agent.id " // only update ourselves;
         + "                   FROM Resource res " //
-        + "                   JOIN res.agent resA " //
         + "                  WHERE res.id = :resourceId ) "), //
     @NamedQuery(name = Agent.QUERY_UPDATE_STATUS_BY_ALERT_DEFINITION, query = "" //
         + " UPDATE Agent a " //
         + "    SET a.status = -1 " // negative numbers so that bitmask strategy does not conflict with this one
         + "  WHERE a.status = 0 " // we only need the first guy to set it
-        + "    AND a.id = ( SELECT resA.id " // only update ourselves;
+        + "    AND a.id = ( SELECT res.agent.id " // only update ourselves;
         + "                   FROM AlertDefinition ad " //
         + "                   JOIN ad.resource res " //
-        + "                   JOIN res.agent resA " //
         + "                  WHERE ad.id = :alertDefinitionId ) "), //
     @NamedQuery(name = Agent.QUERY_UPDATE_STATUS_BY_MEASUREMENT_BASELINE, query = "" //
         + " UPDATE Agent a " //
         + "    SET a.status = -1 " // negative numbers so that bitmask strategy does not conflict with this one
         + "  WHERE a.status = 0 " // we only need the first guy to set it
-        + "    AND a.id = ( SELECT resA.id " // only update ourselves;
+        + "    AND a.id = ( SELECT res.agent.id " // only update ourselves;
         + "                   FROM MeasurementBaseline mb " //
         + "                   JOIN mb.schedule ms " //
         + "                   JOIN ms.resource res " //
-        + "                   JOIN res.agent resA " //
         + "                  WHERE mb.id = :baselineId ) "), //
     @NamedQuery(name = Agent.QUERY_UPDATE_STATUS_BY_AGENT, query = "" //
         + " UPDATE Agent a " //

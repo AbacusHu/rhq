@@ -1,5 +1,5 @@
 <dataset>
-    <rhq_resource_type id="-1"
+    <RHQ_RESOURCE_TYPE id="-1"
                        name="TestServer1"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -8,7 +8,7 @@
                        singleton="false"
                        plugin="TestPlugin1"
                        deleted="false"/>
-    <rhq_resource_type id="-2"
+    <RHQ_RESOURCE_TYPE id="-2"
                        name="TestServer2"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -17,7 +17,7 @@
                        singleton="false"
                        plugin="TestPlugin1"
                        deleted="true"/>
-    <rhq_resource_type id="-3"
+    <RHQ_RESOURCE_TYPE id="-3"
                        name="TestServer1"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -26,7 +26,7 @@
                        singleton="false"
                        plugin="TestPlugin2"
                        deleted="true"/>
-    <rhq_resource_type id="-4"
+    <RHQ_RESOURCE_TYPE id="-4"
                        name="ParentServer1"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -35,7 +35,7 @@
                        singleton="false"
                        plugin="TestPlugin3"
                        deleted="false"/>
-    <rhq_resource_type id="-5"
+    <RHQ_RESOURCE_TYPE id="-5"
                        name="ChildService1"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -44,7 +44,7 @@
                        singleton="false"
                        plugin="TestPlugin3"
                        deleted="false"/>
-    <rhq_resource_type id="-6"
+    <RHQ_RESOURCE_TYPE id="-6"
                        name="ChildService2"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -53,7 +53,7 @@
                        singleton="false"
                        plugin="TestPlugin3"
                        deleted="false"/>
-    <rhq_resource_type id="-7"
+    <RHQ_RESOURCE_TYPE id="-7"
                        name="ChildService3"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -62,7 +62,7 @@
                        singleton="false"
                        plugin="TestPlugin3"
                        deleted="true"/>
-    <rhq_resource_type id="-8"
+    <RHQ_RESOURCE_TYPE id="-8"
                        name="DriftService"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -72,39 +72,39 @@
                        plugin="TestPlugin3"
                        deleted="true"/>
 
-    <rhq_resource_type_parents resource_type_id="-5"
+    <RHQ_RESOURCE_TYPE_PARENTS resource_type_id="-5"
                                parent_resource_type_id="-4"/>
-    <rhq_resource_type_parents resource_type_id="-6"
+    <RHQ_RESOURCE_TYPE_PARENTS resource_type_id="-6"
                                parent_resource_type_id="-4"/>
-    <rhq_resource_type_parents resource_type_id="-7"
+    <RHQ_RESOURCE_TYPE_PARENTS resource_type_id="-7"
                                parent_resource_type_id="-4"/>
 
-    <rhq_package_type/>
-    <rhq_measurement_def/>
-    <rhq_event_def/>
-    <rhq_operation_def/>
-    <rhq_process_scan/>
-    <rhq_config_def/>
-    <rhq_config_prop_def/>
-    <rhq_conf_prop_def_enum/>
-    <rhq_config_prop_constr/>
+    <RHQ_PACKAGE_TYPE/>
+    <RHQ_MEASUREMENT_DEF/>
+    <RHQ_EVENT_DEF/>
+    <RHQ_OPERATION_DEF/>
+    <RHQ_PROCESS_SCAN/>
+    <RHQ_CONFIG_DEF/>
+    <RHQ_CONFIG_PROP_DEF/>
+    <RHQ_CONF_PROP_DEF_ENUM/>
+    <RHQ_CONFIG_PROP_CONSTR/>
 
-    <rhq_config id="-1" ctime="1234455" mtime="1234455" version="1"/>
-    <rhq_config id="-2" ctime="1234455" mtime="1234455" version="1"/>
-    <rhq_config_property/>
+    <RHQ_CONFIG id="-1" ctime="1234455" mtime="1234455" version="1"/>
+    <RHQ_CONFIG id="-2" ctime="1234455" mtime="1234455" version="1"/>
+    <RHQ_CONFIG_PROPERTY/>
 
-    <rhq_config_template id="-1" name="drift_config_template1" config_id="-1" is_default="false"/>
-    <rhq_config_template id="-2" name="drift_config_template2" config_id="-2" is_default="false"/>
+    <RHQ_CONFIG_TEMPLATE id="-1" name="drift_config_template1" config_id="-1" is_default="false"/>
+    <RHQ_CONFIG_TEMPLATE id="-2" name="drift_config_template2" config_id="-2" is_default="false"/>
 
-    <rhq_drift_template id="-1"
+    <RHQ_DRIFT_TEMPLATE id="-1"
                                resource_type_id="-8"
                                config_template_id="-1"/>
-    <rhq_drift_template id="-2"
+    <RHQ_DRIFT_TEMPLATE id="-2"
                                resource_type_id="-8"
                                config_template_id="-2"/>
-    <rhq_drift_template_map/>
+    <RHQ_DRIFT_TEMPLATE_MAP/>
 
-    <rhq_resource/>
-    <rhq_resource_group/>
-    <rhq_resource_group_res_exp_map/>
+    <RHQ_RESOURCE/>
+    <RHQ_RESOURCE_GROUP/>
+    <RHQ_RESOURCE_GROUP_RES_EXP_MAP/>
 </dataset>

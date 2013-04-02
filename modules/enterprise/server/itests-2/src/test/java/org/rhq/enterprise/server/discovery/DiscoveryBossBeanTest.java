@@ -29,6 +29,7 @@ import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -275,6 +276,7 @@ public class DiscoveryBossBeanTest extends AbstractEJB3Test {
         assert mergeResults.getIgnoredResourceTypes() == null : "nothing should have been ignored";
         ResourceSyncInfo platformSyncInfo = mergeResults.getResourceSyncInfo();
         assert platformSyncInfo != null;
+
 
         // Check merge result
         assertEquals(InventoryStatus.NEW, platformSyncInfo.getInventoryStatus());
@@ -543,6 +545,8 @@ public class DiscoveryBossBeanTest extends AbstractEJB3Test {
             } else {
                 type = new OracleDataTypeFactory();
             }
+        } else if (name.contains("mysql")) {
+            type = new org.dbunit.ext.mysql.MySqlDataTypeFactory();
         }
 
         if (type != null) {

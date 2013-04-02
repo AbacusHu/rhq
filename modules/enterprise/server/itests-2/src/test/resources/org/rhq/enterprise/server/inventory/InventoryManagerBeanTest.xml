@@ -1,15 +1,15 @@
 <dataset>
-    <rhq_config_def/>
-    <rhq_config_prop_def/>
-    <rhq_config_pd_osrc/>
-    <rhq_conf_prop_def_enum/>
-    <rhq_config_prop_constr/>
+    <RHQ_CONFIG_DEF/>
+    <RHQ_CONFIG_PROP_DEF/>
+    <RHQ_CONFIG_PD_OSRC/>
+    <RHQ_CONF_PROP_DEF_ENUM/>
+    <RHQ_CONFIG_PROP_CONSTR/>
 
-    <rhq_config/>
-    <rhq_config_property/>
-    <rhq_config_template/>
+    <RHQ_CONFIG/>
+    <RHQ_CONFIG_PROPERTY/>
+    <RHQ_CONFIG_TEMPLATE/>
 
-    <rhq_resource_type id="1"
+    <RHQ_RESOURCE_TYPE id="1"
                        name="TestServer1"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -18,7 +18,7 @@
                        singleton="0"
                        plugin="TestPlugin1"
                        deleted="0"/>
-    <rhq_resource_type id="2"
+    <RHQ_RESOURCE_TYPE id="2"
                        name="TestService1"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -27,7 +27,7 @@
                        singleton="0"
                        plugin="TestPlugin1"
                        deleted="0"/>
-    <rhq_resource_type id="3"
+    <RHQ_RESOURCE_TYPE id="3"
                        name="TestService2"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -36,7 +36,7 @@
                        singleton="0"
                        plugin="TestPlugin1"
                        deleted="0"/>
-    <rhq_resource_type id="4"
+    <RHQ_RESOURCE_TYPE id="4"
                        name="TestServer2"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -45,7 +45,7 @@
                        singleton="0"
                        plugin="TestPlugin1"
                        deleted="0"/>
-    <rhq_resource_type id="5"
+    <RHQ_RESOURCE_TYPE id="5"
                        name="TestService3"
                        category="SERVICE"
                        creation_data_type="CONFIGURATION"
@@ -54,7 +54,7 @@
                        singleton="0"
                        plugin="TestPlugin1"
                        deleted="0"/>
-    <rhq_resource_type id="6"
+    <RHQ_RESOURCE_TYPE id="6"
                        name="TestServer3"
                        category="SERVER"
                        creation_data_type="CONFIGURATION"
@@ -65,28 +65,28 @@
                        deleted="0"/>
 
 
-    <rhq_resource_type_parents resource_type_id="2"
+    <RHQ_RESOURCE_TYPE_PARENTS resource_type_id="2"
                                parent_resource_type_id="1"/>
-    <rhq_resource_type_parents resource_type_id="3"
+    <RHQ_RESOURCE_TYPE_PARENTS resource_type_id="3"
                                parent_resource_type_id="1"/>
-    <rhq_resource_type_parents resource_type_id="5"
+    <RHQ_RESOURCE_TYPE_PARENTS resource_type_id="5"
                                parent_resource_type_id="2"/>
 
 
-    <rhq_process_scan/>
-    <rhq_event_def/>
-    <rhq_measurement_def/>
-    <rhq_operation_def/>
-    <rhq_package_type/>
-    <rhq_bundle_type/>
+    <RHQ_PROCESS_SCAN/>
+    <RHQ_EVENT_DEF/>
+    <RHQ_MEASUREMENT_DEF/>
+    <RHQ_OPERATION_DEF/>
+    <RHQ_PACKAGE_TYPE/>
+    <RHQ_BUNDLE_TYPE/>
 
-    <rhq_resource id="1"
+    <RHQ_RESOURCE id="1"
                   resource_type_id="1"
                   name="TestServer1"
                   uuid="test-server-1"
                   resource_key="test-server-1"
                   connected="1"/>
-    <rhq_resource id="2"
+    <RHQ_RESOURCE id="2"
                   resource_type_id="2"
                   name="TestService1"
                   uuid="test-service-1"
@@ -94,28 +94,28 @@
                   connected="1"
                   parent_resource_id="1"/>
 
-    <rhq_resource_subcat/>
-    <rhq_resource_group/>
-    <rhq_resource_group_res_imp_map/>
-    <rhq_resource_group_res_exp_map/>
-    <rhq_config_group_update/>
-    <rhq_config_update/>
-    <rhq_tagging/>
-    <rhq_tagging_resource_map/>
-    <rhq_tagging_res_group_map/>
-    <rhq_prd_ver/>
-    <rhq_alert_definition/>
-    <rhq_alert_condition/>
-    <rhq_alert/>
-    <rhq_alert_condition_log/>
-    <rhq_alert_notif_log/>
-    <rhq_availability/>
-    <rhq_measurement_sched/>
-    <rhq_content_source/>
-    <rhq_package/>
-    <rhq_bundle/>
-    <rhq_drift_def_template/>
-    <rhq_drift_definition/>
-    <rhq_drift_change_set/>
-    <rhq_plugin/>
+    <RHQ_RESOURCE_SUBCAT/>
+    <RHQ_RESOURCE_GROUP/>
+    <RHQ_RESOURCE_GROUP_RES_IMP_MAP/>
+    <RHQ_RESOURCE_GROUP_RES_EXP_MAP/>
+    <RHQ_CONFIG_GROUP_UPDATE/>
+    <RHQ_CONFIG_UPDATE/>
+    <RHQ_TAGGING/>
+    <RHQ_TAGGING_RESOURCE_MAP/>
+    <RHQ_TAGGING_RES_GROUP_MAP/>
+    <RHQ_PRD_VER/>
+    <RHQ_ALERT_DEFINITION/>
+    <RHQ_ALERT_CONDITION/>
+    <RHQ_ALERT/>
+    <RHQ_ALERT_CONDITION_LOG/>
+    <RHQ_ALERT_NOTIF_LOG/>
+    <RHQ_AVAILABILITY/>
+    <RHQ_MEASUREMENT_SCHED/>
+    <RHQ_CONTENT_SOURCE/>
+    <RHQ_PACKAGE/>
+    <RHQ_BUNDLE/>
+    <RHQ_DRIFT_DEF_TEMPLATE/>
+    <RHQ_DRIFT_DEFINITION/>
+    <RHQ_DRIFT_CHANGE_SET/>
+    <RHQ_PLUGIN/>
 </dataset>

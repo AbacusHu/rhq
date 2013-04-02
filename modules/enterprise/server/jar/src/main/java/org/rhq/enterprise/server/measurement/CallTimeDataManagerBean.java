@@ -37,7 +37,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.dialect.MySQL5Dialect;
 import org.jetbrains.annotations.NotNull;
 
 import org.jboss.ejb3.annotation.TransactionTimeout;
@@ -92,12 +91,12 @@ public class CallTimeDataManagerBean implements CallTimeDataManagerLocal, CallTi
 
     private static final String CALLTIME_VALUE_INSERT_STATEMENT = "INSERT /*+ APPEND */ INTO " + DATA_VALUE_TABLE_NAME
         + "(id, key_id, begin_time, end_time, minimum, maximum, total, count) "
-        + "SELECT %s, key.id, ?, ?, ?, ?, ?, ? FROM " + DATA_KEY_TABLE_NAME
-        + " key WHERE key.schedule_id = ? AND key.call_destination = ?";
+        + "SELECT %s, key_table.id, ?, ?, ?, ?, ?, ? FROM " + DATA_KEY_TABLE_NAME
+        + " key_table WHERE key_table.schedule_id = ? AND key_table.call_destination = ?";
 
     private static final String CALLTIME_VALUE_INSERT_STATEMENT_AUTOINC = "INSERT INTO " + DATA_VALUE_TABLE_NAME
-        + "(key_id, begin_time, end_time, minimum, maximum, total, count) SELECT key.id, ?, ?, ?, ?, ?, ? FROM "
-        + DATA_KEY_TABLE_NAME + " key WHERE key.schedule_id = ? AND key.call_destination = ?";
+        + "(key_id, begin_time, end_time, minimum, maximum, total, count) SELECT key_table.id, ?, ?, ?, ?, ?, ? FROM "
+        + DATA_KEY_TABLE_NAME + " key_table WHERE key_table.schedule_id = ? AND key_table.call_destination = ?";
 
     private static final String CALLTIME_VALUE_PURGE_STATEMENT = "DELETE FROM " + DATA_VALUE_TABLE_NAME
         + " WHERE end_time < ?";

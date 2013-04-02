@@ -140,6 +140,8 @@ public class MetadataBeanTest extends AbstractEJB3Test {
             } else {
                 type = new org.dbunit.ext.oracle.OracleDataTypeFactory();
             }
+        } else if (name.contains("mysql")) {
+            type = new org.dbunit.ext.mysql.MySqlDataTypeFactory();
         }
         if (type != null) {
             config.setProperty("http://www.dbunit.org/properties/datatypeFactory", type);
