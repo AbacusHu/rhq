@@ -102,9 +102,9 @@ import javax.persistence.Table;
         + "                            WHERE alert.ctime BETWEEN :begin AND :end ) "), 
     @NamedQuery(name = AlertConditionLog.QUERY_DELETE_UNMATCHED_BY_ALERT_DEFINITION_ID, //
     query = "DELETE AlertConditionLog acl" // 
-        + "   WHERE acl.id IN ( SELECT iacl.id " //
-        + "                       FROM AlertConditionLog iacl" //
-        + "                      WHERE iacl.condition.alertDefinition.id = :alertDefinitionId ) " // 
+        + "   WHERE acl.condition.id IN ( SELECT ac.id " //
+        + "                       FROM AlertCondition ac" //
+        + "                      WHERE ac.alertDefinition.id = :alertDefinitionId ) " // 
         + "     AND acl.alert IS NULL") })
 @SequenceGenerator(allocationSize = org.rhq.core.domain.util.Constants.ALLOCATION_SIZE, name = "RHQ_ALERT_CONDITION_LOG_ID_SEQ", sequenceName = "RHQ_ALERT_CONDITION_LOG_ID_SEQ")
 @Table(name = "RHQ_ALERT_CONDITION_LOG")
