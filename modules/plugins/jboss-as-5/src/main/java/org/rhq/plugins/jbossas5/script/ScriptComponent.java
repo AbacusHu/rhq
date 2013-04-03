@@ -115,9 +115,21 @@ public class ScriptComponent implements ResourceComponent<ApplicationServerCompo
         if (name.equals(EXECUTE_OPERATION)) {
             OperationResult operationResult = new OperationResult();
 
+            String prefix = null;
+            ApplicationServerComponent<?> parent = this.resourceContext.getParentResourceComponent();
+            if (parent != null && parent.getResourceContext() != null) {
+                Configuration pluginConfig = parent.getResourceContext().getPluginConfiguration();
+                prefix = pluginConfig.getSimpleValue(
+                    ApplicationServerPluginConfigurationProperties.SCRIPT_PREFIX_CONFIG_PROP, null);
+                if ((prefix != null) && prefix.replaceAll("\\s", "").equals("")) {
+                    // all whitespace - normalize to null
+                    prefix = null;
+                }
+            }
+
             File scriptFile = getScriptFile();
             SystemInfo systemInfo = this.resourceContext.getSystemInformation();
-            ProcessExecution processExecution = ProcessExecutionUtility.createProcessExecution(scriptFile);
+            ProcessExecution processExecution = ProcessExecutionUtility.createProcessExecution(prefix, scriptFile);
 
             processExecution.setWaitForCompletion(1000L * 60 * 60); // 1 hour
             processExecution.setCaptureOutput(true);
