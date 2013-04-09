@@ -153,15 +153,12 @@ public class DynamicConfigurationPropertyBeanTest extends AbstractEJB3Test {
     @SuppressWarnings("unchecked")
     private int countForQuery(String queryString, boolean isName) throws NotSupportedException, SystemException {
 
-        getTransactionManager().begin();
         EntityManager entityManager = getEntityManager();
 
         Query query = (isName) ? entityManager.createNamedQuery(queryString) : entityManager.createQuery(queryString);
         List existing = query.getResultList();
 
         int count = existing.size();
-
-        getTransactionManager().rollback();
 
         return count;
     }

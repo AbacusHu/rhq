@@ -169,7 +169,8 @@ public abstract class LargeGroupTestBase extends AbstractEJB3Test {
                 // create the platform resource type and server resource type
                 // the server type will have both a plugin configuration definition and resource config def
                 if (lge.platformType == null) {
-                    lge.platformType = new ResourceType("LargeGroupTestPlatformType", "testPlugin",
+                    lge.platformType = new ResourceType("LargeGroupTestPlatformType", "testPlugin"
+                        + System.currentTimeMillis(),
                         ResourceCategory.PLATFORM, null);
                     em.persist(lge.platformType);
                 } else {
@@ -177,7 +178,8 @@ public abstract class LargeGroupTestBase extends AbstractEJB3Test {
                 }
 
                 if (lge.serverType == null) {
-                    lge.serverType = new ResourceType("LargeGroupTestServerType", "testPlugin",
+                    lge.serverType = new ResourceType("LargeGroupTestServerType", "testPlugin"
+                        + System.currentTimeMillis(),
                         ResourceCategory.SERVER, lge.platformType);
                     lge.serverPluginConfiguration = new ConfigurationDefinition("LargeGroupTestPCDef", "pc desc");
                     lge.serverPluginConfiguration.put(new PropertyDefinitionSimple(PC_PROP1_NAME, "pc prop1desc",

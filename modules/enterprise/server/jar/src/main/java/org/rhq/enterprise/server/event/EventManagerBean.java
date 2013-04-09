@@ -156,10 +156,10 @@ public class EventManagerBean implements EventManagerLocal, EventManagerRemote {
             }
 
             if (dbType instanceof PostgresqlDatabaseType || dbType instanceof OracleDatabaseType
-                || dbType instanceof H2DatabaseType || dbType instanceof MySqlDatabaseType) {
+                || dbType instanceof H2DatabaseType) {
                 String nextvalSql = JDBCUtil.getNextValSql(conn, Event.TABLE_NAME);
                 statementSql = String.format(EVENT_INSERT_STMT, nextvalSql);
-            } else if (dbType instanceof SQLServerDatabaseType) {
+            } else if (dbType instanceof MySqlDatabaseType || dbType instanceof SQLServerDatabaseType) {
                 statementSql = EVENT_INSERT_STMT_AUTOINC;
             } else {
                 throw new IllegalArgumentException("Unknown database type, can't continue: " + dbType);

@@ -297,7 +297,7 @@ public class ContentUIManagerBeanTest extends AbstractEJB3Test {
                     assert composite.isPackageBitsInDatabase();
 
                     FileOutputStream outputStream = new FileOutputStream(retrieved);
-                    contentManager.writeBlobOutToStream(outputStream, packageBits, false);
+                    contentManager.writeBlobOutToStream(outputStream, packageBits, true);
 
                     //Check that db content equal to file system content
                     String newDigest = new MessageDigestGenerator(MessageDigestGenerator.SHA_256)

@@ -674,7 +674,7 @@ public class CoreServerServiceImplTest extends AbstractEJB3Test {
     }
 
     private String prefixName(String name) {
-        return TEST_AGENT_NAME_PREFIX + name;
+        return TEST_AGENT_NAME_PREFIX + System.currentTimeMillis() + name;
     }
 
     private void debugPrintThrowable(Throwable t) {
