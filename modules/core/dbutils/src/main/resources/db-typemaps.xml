@@ -62,7 +62,7 @@ attribute (see DatabaseType.getName/getVendor javadocs).
       <map db="oracle"      type="CHAR" />
       <map db="h2"          type="CHAR" />
       <map db="sqlserver"   type="CHAR" />
-      <map db="mysql"		type="CHAR" />
+      <map db="mysql"		type="VARCHAR" />
    </typemap>
    <typemap type="DOUBLE">
       <map db="java"        type="FLOAT" />
