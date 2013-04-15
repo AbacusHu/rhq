@@ -591,7 +591,7 @@
                                 </goals>
                                 <configuration>
                                     <artifactItems>
-
+<!-- 
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
                                             <artifactId>rhq-augeas-plugin</artifactId>
@@ -633,13 +633,13 @@
                                             <artifactId>jopr-jboss-cache-plugin</artifactId>
                                             <version>${project.version}</version>
                                         </artifactItem>
-
+ -->
                                         <artifactItem>
                                             <groupId>org.jboss.on</groupId>
                                             <artifactId>jopr-jboss-as-5-plugin</artifactId>
                                             <version>${project.version}</version>
                                         </artifactItem>
-
+<!-- 
                                         <artifactItem>
                                             <groupId>org.jboss.on</groupId>
                                             <artifactId>jopr-jboss-cache-v3-plugin</artifactId>
@@ -651,7 +651,7 @@
                                             <artifactId>modcluster-plugin</artifactId>
                                             <version>${project.version}</version>
                                         </artifactItem>
-
+ -->
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
                                             <artifactId>rhq-jboss-as-7-plugin</artifactId>
@@ -681,7 +681,7 @@
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
-
+<!-- 
                             <execution>
                                 <id>copy-linux-plugins</id>
                                 <phase>process-resources</phase>
@@ -762,7 +762,7 @@
                                             <artifactId>rhq-sshd-plugin</artifactId>
                                             <version>${project.version}</version>
                                         </artifactItem>
-
+-->
                                         <!-- TODO:jdk6 - temporarily disabled because of jdk6 requirement
                                         <artifactItem>
                                             <groupId>${project.groupId}</groupId>
@@ -780,11 +780,12 @@
                                             <version>${project.version}</version>
                                         </artifactItem>
                                         -->
+<!--                                         
                                     </artifactItems>
                                     <outputDirectory>${earDirectory}/rhq-downloads/rhq-plugins</outputDirectory>
                                 </configuration>
                             </execution>
-
+ -->
                         </executions>
                     </plugin>
                 </plugins>
@@ -804,7 +805,7 @@
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
-
+<!-- 
                             <execution>
                                 <id>copy-misc-plugins</id>
                                 <phase>process-resources</phase>
@@ -873,12 +874,12 @@
                                             <artifactId>rhq-filetemplate-bundle-plugin</artifactId>
                                             <version>${project.version}</version>
                                         </artifactItem>
-
+ 
                                     </artifactItems>
                                     <outputDirectory>${earDirectory}/rhq-downloads/rhq-plugins</outputDirectory>
                                 </configuration>
                             </execution>
-
+-->
                         </executions>
                     </plugin>
                 </plugins>

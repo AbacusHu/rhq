@@ -1951,8 +1951,7 @@ public class ContentManagerBean implements ContentManagerLocal, ContentManagerRe
                     Blob blb = rs.getBlob(1);
 
                     //copy the stream to the Blob
-                    long transferred = copyAndDigest(stream, blb.setBinaryStream(1), false, contentDetails);
-                    stream.close();
+                    long transferred = copyAndDigest(stream, blb.setBinaryStream(1), true, contentDetails);
 
                     //populate the prepared statement for update
                     ps2 = conn.prepareStatement("UPDATE " + PackageBits.TABLE_NAME + " SET bits = ? where id = ?");
