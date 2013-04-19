@@ -117,6 +117,8 @@ public interface ResourceManagerLocal {
      */
     void uninventoryResourceAsyncWork(Subject user, int resourceId);
 
+    void uninventoryResourcesAsyncWork(Subject user, List<Integer> resourceIds);
+
     boolean bulkNativeQueryDeleteInNewTransaction(Subject subject, String nativeQueryString, List<Integer> resourceIds);
 
     boolean bulkNamedQueryDeleteInNewTransaction(Subject subject, String namedQuery, List<Integer> resourceIds);

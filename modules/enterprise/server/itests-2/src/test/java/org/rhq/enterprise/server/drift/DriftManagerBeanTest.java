@@ -358,9 +358,7 @@ public class DriftManagerBeanTest extends AbstractEJB3Test {
                 // invoke bulk delete on the resource to remove any dependencies not defined in the hibernate entity model
                 // perform in-band and out-of-band work in quick succession
                 List<Integer> deletedIds = resourceManager.uninventoryResource(overlord, resource.getId());
-                for (Integer deletedResourceId : deletedIds) {
-                    resourceManager.uninventoryResourceAsyncWork(overlord, deletedResourceId);
-                }
+                resourceManager.uninventoryResourcesAsyncWork(overlord, deletedIds);
 
                 // now dispose of other hibernate entities
                 getTransactionManager().begin();

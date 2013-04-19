@@ -547,9 +547,7 @@ public class DataPurgeJobTest extends AbstractEJB3Test {
             Subject overlord = LookupUtil.getSubjectManager().getOverlord();
             ResourceManagerLocal resourceManager = LookupUtil.getResourceManager();
             List<Integer> deletedIds = resourceManager.uninventoryResource(overlord, doomedResource.getId());
-            for (Integer deletedResourceId : deletedIds) {
-                resourceManager.uninventoryResourceAsyncWork(overlord, deletedResourceId);
-            }
+            resourceManager.uninventoryResourcesAsyncWork(overlord, deletedIds);
 
             // delete the agent and the type
             getTransactionManager().begin();

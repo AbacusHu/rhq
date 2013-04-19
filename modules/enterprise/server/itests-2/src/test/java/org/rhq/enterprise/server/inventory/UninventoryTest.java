@@ -175,9 +175,7 @@ public class UninventoryTest extends AbstractEJB3Test {
                 // perform in-band and out-of-band work in quick succession
                 Subject overlord = LookupUtil.getSubjectManager().getOverlord();
                 List<Integer> deletedIds = resourceManager.uninventoryResource(overlord, resource.getId());
-                for (Integer deletedResourceId : deletedIds) {
-                    resourceManager.uninventoryResourceAsyncWork(overlord, deletedResourceId);
-                }
+                resourceManager.uninventoryResourcesAsyncWork(overlord, deletedIds);
 
                 // now dispose of other hibernate entities
                 getTransactionManager().begin();

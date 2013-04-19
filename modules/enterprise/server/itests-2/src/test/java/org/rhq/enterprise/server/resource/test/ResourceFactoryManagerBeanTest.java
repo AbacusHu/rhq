@@ -556,9 +556,7 @@ public class ResourceFactoryManagerBeanTest extends AbstractEJB3Test {
         if (parentResource != null) {
 
             List<Integer> deletedIds = resourceManager.uninventoryResource(overlord, parentResource.getId());
-            for (Integer deletedResourceId : deletedIds) {
-                resourceManager.uninventoryResourceAsyncWork(overlord, deletedResourceId);
-            }
+            resourceManager.uninventoryResourcesAsyncWork(overlord, deletedIds);
 
             getTransactionManager().begin();
 

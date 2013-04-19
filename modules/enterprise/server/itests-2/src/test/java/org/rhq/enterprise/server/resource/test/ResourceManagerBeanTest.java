@@ -373,9 +373,8 @@ public class ResourceManagerBeanTest extends UpdatePluginMetadataTestBase {
                 Resource res = em.find(Resource.class, resource.getId());
                 System.out.println("Removing " + res + "...");
                 List<Integer> deletedIds = resourceManager.uninventoryResource(overlord, res.getId());
-                for (Integer deletedResourceId : deletedIds) {
-                    resourceManager.uninventoryResourceAsyncWork(overlord, deletedResourceId);
-                }
+                resourceManager.uninventoryResourcesAsyncWork(overlord, deletedIds);
+
                 em.flush();
 
                 ResourceType type = em.find(ResourceType.class, resource.getResourceType().getId());

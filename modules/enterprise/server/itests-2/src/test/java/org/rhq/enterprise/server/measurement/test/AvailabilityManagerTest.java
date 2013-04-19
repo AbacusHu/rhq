@@ -123,9 +123,13 @@ public class AvailabilityManagerTest extends AbstractEJB3Test {
             }
 
             if (additionalResources != null) {
+                List<Integer> resIds = new ArrayList<Integer>();
                 for (Resource res : additionalResources) {
                     resourceManager.uninventoryResource(overlord, res.getId());
-                    resourceManager.uninventoryResourceAsyncWork(overlord, res.getId());
+                    resIds.add(res.getId());
+                }
+                if (!resIds.isEmpty()) {
+                    resourceManager.uninventoryResourcesAsyncWork(overlord, resIds);
                 }
             }
 

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
@@ -35,8 +36,10 @@ import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.commandline.CommandLineUtils;
 import liquibase.resource.ClassLoaderResourceAccessor;
+
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.helper.ProjectHelper2;
+
 import org.rhq.core.db.setup.DBSetup;
 import org.rhq.enterprise.server.test.AbstractEJB3Test;
 
@@ -67,7 +70,7 @@ public class DbSetupUtility {
         }
         return testDsConfig;
     }
-    
+
     public static void dbreset() throws Exception {
         TestDatasourceConfiguration testDs = getTestDatasourceConfiguration();
         System.out.println("Resetting DB at " + testDs.connectionUrl + "...");
@@ -94,10 +97,8 @@ public class DbSetupUtility {
         String dataFileResourcePath;
         if (jonVersion != null) {
             System.out.println("Installing new RHQ DB with schema from JON version [" + jonVersion + "]...");
-            schemaFileResourcePath =
-                BASE_RESOURCE_PATH + "/" + "db-schema-combined-" + jonVersion + ".xml";
-            dataFileResourcePath =
-                            BASE_RESOURCE_PATH + "/" + "db-data-combined-" + jonVersion + ".xml";
+            schemaFileResourcePath = BASE_RESOURCE_PATH + "/" + "db-schema-combined-" + jonVersion + ".xml";
+            dataFileResourcePath = BASE_RESOURCE_PATH + "/" + "db-data-combined-" + jonVersion + ".xml";
         } else {
             System.out.println("Installing new RHQ DB with latest schema version...");
             schemaFileResourcePath = "db-schema-combined.xml";
@@ -105,7 +106,7 @@ public class DbSetupUtility {
         }
 
         TestDatasourceConfiguration testDs = getTestDatasourceConfiguration();
-        
+
         DBSetup dbsetup = new DBSetup(testDs.connectionUrl, testDs.userName, testDs.password);
         dbsetup.setup(schemaFileResourcePath);
         dbsetup.setup(dataFileResourcePath);
@@ -128,8 +129,8 @@ public class DbSetupUtility {
 
             startAnt(dbupgradeXmlFileUrl, "db-ant-tasks.properties", antProps, logfile);
         } catch (Exception e) {
-            throw new RuntimeException("Cannot upgrade the RHQ DB at [" + testDs.connectionUrl + "] to schema version ["
-                + targetSchemaVersion + "].", e);
+            throw new RuntimeException("Cannot upgrade the RHQ DB at [" + testDs.connectionUrl
+                + "] to schema version [" + targetSchemaVersion + "].", e);
         }
 
         return;
@@ -160,11 +161,21 @@ public class DbSetupUtility {
         database.execute(new SqlStatement[]{new DropTableStatement(null, "RHQ_CALLTIME_DATA_KEY", false)},
             Arrays.asList(sqlVisitor));*/
 
+        Connection connection = null;
         try {
-            PreparedStatement statement = AbstractEJB3Test.getConnection().prepareStatement("DROP TABLE RHQ_CALLTIME_DATA_KEY");
+            connection = AbstractEJB3Test.getConnection();
+            PreparedStatement statement = connection.prepareStatement("DROP TABLE RHQ_CALLTIME_DATA_KEY");
             statement.execute();
         } catch (SQLException e) {
             // ignore
+        } finally {
+            if (null != connection) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    //ignore
+                }
+            }
         }
     }
 
@@ -206,8 +217,8 @@ public class DbSetupUtility {
             project.addBuildListener(new LoggerAntBuildListener(logFileOutput));
 
             for (Map.Entry<Object, Object> taskDef : taskDefs.entrySet()) {
-                project.addTaskDefinition(taskDef.getKey().toString(), Class.forName(taskDef.getValue().toString(),
-                    true, classLoader));
+                project.addTaskDefinition(taskDef.getKey().toString(),
+                    Class.forName(taskDef.getValue().toString(), true, classLoader));
             }
 
             new ProjectHelper2().parse(project, buildFile);
@@ -220,14 +231,14 @@ public class DbSetupUtility {
             }
         }
     }
-    
+
     private static class TestDatasourceConfiguration {
         abstract class Property {
             public static final String DB_CONNECTION_URL = "rhq.test.ds.connection-url";
             public static final String DB_SERVER_NAME = "rhq.test.ds.server-name";
             public static final String DB_NAME = "rhq.test.ds.db-name";
             public static final String DB_USER_NAME = "rhq.test.ds.user-name";
-            public static final String DB_PASSWORD = "rhq.test.ds.password";    
+            public static final String DB_PASSWORD = "rhq.test.ds.password";
         }
 
         String connectionUrl;
@@ -235,7 +246,7 @@ public class DbSetupUtility {
         String dbName;
         String userName;
         String password;
-        
+
         private TestDatasourceConfiguration(Properties props) {
             connectionUrl = props.getProperty(Property.DB_CONNECTION_URL);
             serverName = props.getProperty(Property.DB_SERVER_NAME);
@@ -247,12 +258,8 @@ public class DbSetupUtility {
         @Override
         public String toString() {
             // NOTE: For the sake of security, we don't include the password here.
-            return "{" +
-                "connectionUrl='" + connectionUrl + '\'' +
-                ", serverName='" + serverName + '\'' +
-                ", dbName='" + dbName + '\'' +
-                ", userName='" + userName + '\'' +
-                '}';
+            return "{" + "connectionUrl='" + connectionUrl + '\'' + ", serverName='" + serverName + '\'' + ", dbName='"
+                + dbName + '\'' + ", userName='" + userName + '\'' + '}';
         }
     }
 

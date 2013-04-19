@@ -469,7 +469,7 @@ public class ResourceManagerBean implements ResourceManagerLocal, ResourceManage
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void uninventoryResourceAsyncWork(Subject user, int resourceId) {
+    public void uninventoryResourcesAsyncWork(Subject user, List<Integer> resourceIds) {
         if (!authorizationManager.isOverlord(user)) {
             throw new IllegalArgumentException("Only the overlord can execute out-of-band async resource delete method");
         }
@@ -483,51 +483,63 @@ public class ResourceManagerBean implements ResourceManagerLocal, ResourceManage
          * come across the wire and flip the status of resources from UNINVENTORIED back to COMMITTED.  in this case,
          * this group removal logic needs to be executed again just prior to removing the rest of the reosurce history.
          */
-        boolean hasErrors = uninventoryResourcesBulkDelete(user, Arrays.asList(resourceId));
+        boolean hasErrors = uninventoryResourcesBulkDelete(user, resourceIds);
         if (hasErrors) {
             return; // return early if there were any errors, because we can't remove the resource yet
         }
 
-        hasErrors = uninventoryResourceBulkDeleteAsyncWork(user, resourceId);
+        hasErrors = uninventoryResourceBulkDeleteAsyncWork(user, resourceIds);
         if (hasErrors) {
             return; // return early if there were any errors, because we can't remove the resource yet
         }
 
-        Resource attachedResource = entityManager.find(Resource.class, resourceId);
-        if (log.isDebugEnabled()) {
-            log.debug("Overlord is asynchronously deleting resource [" + attachedResource + "]");
-        }
+        for (int resourceId : resourceIds) {
 
-        if (attachedResource != null) {
-            // our unidirectional one-to-many mapping of drift definition makes it not possible to easily bulk delete drift definition
-            // so remove them here and let cascading of delete_orphan do the work
-            if (attachedResource.getDriftDefinitions() != null) {
-                attachedResource.getDriftDefinitions().clear();
+            Resource attachedResource = entityManager.find(Resource.class, resourceId);
+            if (log.isDebugEnabled()) {
+                log.debug("Overlord is asynchronously deleting resource [" + attachedResource + "]");
             }
 
-            // one more thing, delete any autogroup backing groups
-            List<ResourceGroup> backingGroups = attachedResource.getAutoGroupBackingGroups();
-            if (null != backingGroups && !backingGroups.isEmpty()) {
-                int size = backingGroups.size();
-                int[] backingGroupIds = new int[size];
-                for (int i = 0; (i < size); ++i) {
-                    backingGroupIds[i] = backingGroups.get(i).getId();
+            if (attachedResource != null) {
+                // our unidirectional one-to-many mapping of drift definition makes it not possible to easily bulk delete drift definition
+                // so remove them here and let cascading of delete_orphan do the work
+                if (attachedResource.getDriftDefinitions() != null) {
+                    attachedResource.getDriftDefinitions().clear();
                 }
-                try {
-                    resourceGroupManager.deleteResourceGroups(user, backingGroupIds);
-                } catch (Throwable t) {
-                    if (log.isDebugEnabled()) {
-                        log.error("Bulk delete error for autogroup backing group deletion for " + backingGroupIds, t);
-                    } else {
-                        log.error("Bulk delete error for autogroup backing group deletion for " + backingGroupIds
-                            + ": " + t.getMessage());
+
+                // one more thing, delete any autogroup backing groups
+                List<ResourceGroup> backingGroups = attachedResource.getAutoGroupBackingGroups();
+                if (null != backingGroups && !backingGroups.isEmpty()) {
+                    int size = backingGroups.size();
+                    int[] backingGroupIds = new int[size];
+                    for (int i = 0; (i < size); ++i) {
+                        backingGroupIds[i] = backingGroups.get(i).getId();
+                    }
+                    try {
+                        resourceGroupManager.deleteResourceGroups(user, backingGroupIds);
+                    } catch (Throwable t) {
+                        if (log.isDebugEnabled()) {
+                            log.error("Bulk delete error for autogroup backing group deletion for " + backingGroupIds,
+                                t);
+                        } else {
+                            log.error("Bulk delete error for autogroup backing group deletion for " + backingGroupIds
+                                + ": " + t.getMessage());
+                        }
                     }
                 }
-            }
 
-            // now we can purge the resource, let cascading do the rest
-            entityManager.remove(attachedResource);
+                // now we can purge the resource, let cascading do the rest
+                entityManager.remove(attachedResource);
+            }
         }
+        return;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void uninventoryResourceAsyncWork(Subject user, int resourceId) {
+        List<Integer> resourceIds = new ArrayList<Integer>();
+        resourceIds.add(resourceId);
+        uninventoryResourcesAsyncWork(user, resourceIds);
         return;
     }
 
@@ -571,7 +583,7 @@ public class ResourceManagerBean implements ResourceManagerLocal, ResourceManage
         return hasErrors;
     }
 
-    private boolean uninventoryResourceBulkDeleteAsyncWork(Subject overlord, int resourceId) {
+    private boolean uninventoryResourceBulkDeleteAsyncWork(Subject overlord, List<Integer> resourceIds) {
         String[] namedQueriesToExecute = new String[] { //
         ResourceRepo.DELETE_BY_RESOURCES, //
             MeasurementBaseline.QUERY_DELETE_BY_RESOURCES, // baseline BEFORE schedules
@@ -613,8 +625,6 @@ public class ResourceManagerBean implements ResourceManagerLocal, ResourceManage
             JPADrift.QUERY_DELETE_BY_RESOURCES, //       drift before changeset
             JPADriftChangeSet.QUERY_DELETE_BY_RESOURCES };
 
-        List<Integer> resourceIds = new ArrayList<Integer>();
-        resourceIds.add(resourceId);
         boolean supportsCascade = DatabaseTypeFactory.getDefaultDatabaseType().supportsSelfReferringCascade();
 
         boolean hasErrors = false;

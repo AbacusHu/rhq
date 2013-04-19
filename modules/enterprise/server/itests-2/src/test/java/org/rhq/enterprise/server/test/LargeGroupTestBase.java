@@ -302,15 +302,7 @@ public abstract class LargeGroupTestBase extends AbstractEJB3Test {
         System.out.print("=====> Removing member Resources (this might take some time)...");
         final List<Integer> deletedIds = resourceManager.uninventoryResource(getOverlord(),
             lge.platformResource.getId());
-        for (int i = 1, deletedIdsSize = deletedIds.size(); i <= deletedIdsSize; i++) {
-            Integer deletedResourceId = deletedIds.get(i - 1);
-            resourceManager.uninventoryResourceAsyncWork(getOverlord(), deletedResourceId);
-            if ((i % 100) == 0) {
-                System.out.print(i);
-            } else if ((i % 10) == 0) {
-                System.out.print('.');
-            }
-        }
+        resourceManager.uninventoryResourcesAsyncWork(getOverlord(), deletedIds);
         System.out.println(" Done.");
 
         // purge the users and role

@@ -370,9 +370,7 @@ public class UpdatePluginMetadataTestBase extends AbstractEJB3Test {
                 // perform in-band and out-of-band work in quick succession
                 for (Resource doomed : doomedResources) {
                     List<Integer> deletedIds = resourceManager.uninventoryResource(overlord, doomed.getId());
-                    for (Integer deletedResourceId : deletedIds) {
-                        resourceManager.uninventoryResourceAsyncWork(overlord, deletedResourceId);
-                    }
+                    resourceManager.uninventoryResourcesAsyncWork(overlord, deletedIds);
                 }
 
                 // Measurement defs go away via cascade remove
@@ -426,9 +424,7 @@ public class UpdatePluginMetadataTestBase extends AbstractEJB3Test {
     protected void deleteNewResource(final Resource resource) throws Exception {
         try {
             List<Integer> deletedIds = resourceManager.uninventoryResource(getOverlord(), resource.getId());
-            for (Integer deletedResourceId : deletedIds) {
-                resourceManager.uninventoryResourceAsyncWork(getOverlord(), deletedResourceId);
-            }
+            resourceManager.uninventoryResourcesAsyncWork(getOverlord(), deletedIds);
         } catch (Exception e) {
             System.out.println("CANNOT CLEAN UP RESOURCE: " + resource + ": " + e);
             throw e;
