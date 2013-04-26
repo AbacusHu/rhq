@@ -54,7 +54,7 @@ attribute (see DatabaseType.getName/getVendor javadocs).
       <map db="oracle"      type="CLOB" />
       <map db="h2"          type="LONGVARCHAR" />
       <map db="sqlserver"   type="TEXT" />
-      <map db="mysql"		type="TEXT" />
+      <map db="mysql"		type="LONGTEXT" />
    </typemap>
    <typemap type="CHAR">
       <map db="java"        type="CHAR" />
@@ -105,7 +105,7 @@ attribute (see DatabaseType.getName/getVendor javadocs).
       <map db="oracle"      type="CLOB" />
       <map db="h2"          type="CLOB" />
       <map db="sqlserver"   type="TEXT" />
-      <map db="mysql"		type="TEXT" />
+      <map db="mysql"		type="LONGTEXT" />
    </typemap>
    <typemap type="SMALLINT">
       <map db="java"        type="SMALLINT" />
