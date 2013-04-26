@@ -395,9 +395,9 @@ public class ApplicationServerDiscoveryComponent implements ResourceDiscoveryCom
             configureEventSourceForServerLogFile(pluginConfig);
         }
         final String PRODUCT_PREFIX = productType.name() + " ";
-        String name = PRODUCT_PREFIX
-            + formatServerName(bindAddress, namingPort, discoveryContext.getSystemInformation().getHostname(),
-                absoluteConfigPath.getName(), isRhqServer);
+
+        String name = formatServerName(bindAddress, namingPort, discoveryContext.getSystemInformation().getHostname(),
+            processInfo.getCredentialsName().getUser(), isRhqServer);
 
         // If we are discovering plugin config via processInfo, then in addition to everything we discover above,
         // we'll now see if we can determine more robust startup environment information to be used for start/restart
@@ -406,6 +406,8 @@ public class ApplicationServerDiscoveryComponent implements ResourceDiscoveryCom
         if (processInfo != null) {
             setStartScriptPluginConfigProps(processInfo, new JavaCommandLine(processInfo.getCommandLine()),
                 pluginConfig);
+
+
         }
 
         return new DiscoveredResourceDetails(discoveryContext.getResourceType(), key, name, PRODUCT_PREFIX
@@ -448,7 +450,7 @@ public class ApplicationServerDiscoveryComponent implements ResourceDiscoveryCom
         startScriptConfig.setStartScriptArgs(startScriptArgs);
     }
 
-    public String formatServerName(String bindingAddress, String jnpPort, String hostname, String configurationName,
+    public String formatServerName(String bindingAddress, String jnpPort, String hostname, String userName,
         boolean isRhq) {
 
         if (isRhq) {
@@ -474,7 +476,7 @@ public class ApplicationServerDiscoveryComponent implements ResourceDiscoveryCom
                 hostnameToUse += ":" + jnpPort;
             }
 
-            return hostnameToUse + " " + configurationName;
+            return hostnameToUse + " ( " + userName + ")";
         }
     }
 
