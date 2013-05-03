@@ -2,7 +2,7 @@
 
 <project name="rhq-appserver-container" basedir=".">
 
-    <property name="default.rhq.server.database.hibernate-dialect" value="org.hibernate.dialect.MySQL5Dialect" />
+    <property name="default.rhq.server.database.hibernate-dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
     <property name="default.rhq.server.database.connection-url"    value="jdbc:mysql://127.0.0.1:3306/rhq" />
     <property name="default.rhq.server.database.user-name"          value="rhqadmin" />
     <property name="default.rhq.server.database.password"           value="rhqadmin" />
