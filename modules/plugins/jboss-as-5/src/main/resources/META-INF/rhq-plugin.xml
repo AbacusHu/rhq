@@ -1806,7 +1806,42 @@
 			</resource-configuration>
 
 		</service>
-        <service name="HornetQ Subsystem" subCategory="Resources"
+
+		<service name="Servlet" subCategory="Resources"
+			discovery="org.rhq.plugins.jmx.MBeanResourceDiscoveryComponent"
+			class="org.rhq.plugins.jmx.MBeanResourceComponent" description="Wrapper that represents an individual servlet definition."
+			createDeletePolicy="neither">
+
+			<plugin-configuration>
+				<c:simple-property name="objectName" readOnly="true"
+					default="jboss.web:J2EEApplication=none,J2EEServer=none,WebModule=%webmodule%,j2eeType=Servlet,name=%name%" />
+				<c:simple-property name="nameTemplate" readOnly="true"
+					default="({webmodule}) {name}" />
+				<c:simple-property name="descriptionTemplate"
+					readOnly="true" default="Wrapper that represents an individual servlet definition." />
+			</plugin-configuration>
+
+			<metric property="processingTime"
+					description="Total execution time of the servlet's service method." />
+				<metric property="requestCount"
+					description="Number of requests processed by this wrapper." />
+				<metric property="errorCount"
+					description="Error count." />
+				<metric property="classLoadTime"
+					description="Class loading time." />
+				<metric property="engineName" dataType="trait"
+					description="Fully qualified class name of the managed object." />
+				<metric property="modelerType" dataType="trait"
+					description="Type of the modeled resource. Can be set only once" />
+				<metric property="maxTime"
+					description="Maximum processing time of a request。" />
+				<metric property="loadTime"
+					description="Load time." />
+				<metric property="minTime"
+					description="Minimum processing time of a request" />
+		</service>
+
+		<service name="HornetQ Subsystem" subCategory="Resources"
 			discovery="org.rhq.plugins.jmx.MBeanResourceDiscoveryComponent"
 			class="org.rhq.plugins.jmx.MBeanResourceComponent" description="The HornetQ based messaging subsystem."
 			createDeletePolicy="neither" singleton="true">
@@ -1915,8 +1950,6 @@
 						default="{name}" />
 					<c:simple-property name="descriptionTemplate"
 						readOnly="true" default="The JMS queue {name} ." />
-					<c:simple-property name="name" type="string"
-						readOnly="true" description="The JMS queue's name" />
 				</plugin-configuration>
 
 				<operation name="addJNDI" displayName="Add JNDI binding"
@@ -2221,8 +2254,6 @@
 						default="{name}" />
 					<c:simple-property name="descriptionTemplate"
 						readOnly="true" default="The JMS topic {name} ." />
-					<c:simple-property name="name" type="string"
-						readOnly="true" description="The JMS topic's name" />
 				</plugin-configuration>
 
 				<operation name="addJNDI" displayName="Add JNDI binding"
