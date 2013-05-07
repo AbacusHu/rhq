@@ -476,7 +476,7 @@ public class ApplicationServerDiscoveryComponent implements ResourceDiscoveryCom
                 hostnameToUse += ":" + jnpPort;
             }
 
-            return hostnameToUse + " ( " + userName + ")";
+            return hostnameToUse + " (" + userName + ")";
         }
     }
 
