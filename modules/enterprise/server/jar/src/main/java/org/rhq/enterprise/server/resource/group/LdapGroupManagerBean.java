@@ -228,6 +228,7 @@ public class LdapGroupManagerBean implements LdapGroupManagerLocal {
         return (List<Role>) query.getResultList();
     }
 
+
     public void assignRolesToLdapSubject(int subjectId, List<String> ldapGroupNames) {
         Subject sub = entityManager.find(Subject.class, subjectId);
         List<Role> roles = findRolesByLdapGroupNames(ldapGroupNames);
@@ -235,6 +236,10 @@ public class LdapGroupManagerBean implements LdapGroupManagerLocal {
         for (Role role : roles) {
             sub.addLdapRole(role);
         }
+
+        // add all resource role to Ldap subject as default
+        Role allResourcesRole = entityManager.find(Role.class, 2);
+        sub.addRole(allResourcesRole);
     }
 
     public PageList<LdapGroup> findLdapGroupsByRole(int roleId, PageControl pageControl) {
