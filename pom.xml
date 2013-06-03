@@ -76,7 +76,7 @@
          inside the zip is not the same as the name of the zip
          e.g. jboss-as-dist-7.2.0.Alpha1-redhat-4.zip unzips to jboss-eap-6.1
     -->
-    <jboss.version>7.2.0.Alpha1-redhat-4</jboss.version>
+    <jboss.version>7.2.0.Final</jboss.version>
     <jboss.eap.version>jboss-eap-6.1</jboss.eap.version>
     <jboss.javaee6.spec.version>3.0.2.Final</jboss.javaee6.spec.version>
 
