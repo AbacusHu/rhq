@@ -227,7 +227,7 @@ public class MeasurementDataManagerUtility {
                 + "  FROM RHQ_MEASUREMENT_SCHED innerSchedule \n" //
                 + "  JOIN RHQ_RESOURCE_GROUP_RES_EXP_MAP groupMap \n" //
                 + "       ON innerSchedule.resource_id = groupMap.resource_id \n" //
-                + "  JOIN rhq_resource innerRes \n"//
+                + "  JOIN RHQ_RESOURCE innerRes \n"//
                 + "       ON innerSchedule.resource_id = innerRes.id \n"//
                 + " WHERE innerSchedule.definition = ? \n" //
                 + "   AND innerRes.inventory_status = '" + InventoryStatus.COMMITTED.name() + "' \n"//
